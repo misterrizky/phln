@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Unor extends Model
+{
+    protected $table = 'master.unor';
+    public $timestamps = false;
+    
+    public function department(){
+        return $this->belongsTo(Department::class,'department_id','id');
+    }
+}
