@@ -30,26 +30,23 @@
         <div class="card-toolbar">
             <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik">1. Informasi Kegiatan</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik">1. Informasi Paket</a>
                 </li>
                 @if($data->id)
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ea">2. EA</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ea">2. Foto</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ia">3. IA</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ia">3. Alokasi</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dmu">4. DMU</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dmu">4. DIPA (PAGU)</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_kpi">5. KPI</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_kpi">5. AWP</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_arsip">6. Arsip</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_pagu">7. DIPA (PAGU)</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_arsip">6. Realisasi</a>
                 </li>
                 @endif
             </ul>
@@ -69,8 +66,52 @@
                                 <option value="3" {{$data->jenis_paket == 3 ? 'selected' : '' }}>Administrasi Umum</option>
                             </select>
                         </div>
+                        <div class="col-lg-4">
+                            <label class="required fs-6 fw-bold mb-2">Provinsi</label>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="required fs-6 fw-bold mb-2">Kota/Kabupaten</label>
+                        </div>
                     </div>
-                    <div class="row">
+                    <div class="row mt-5">
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Nama Paket</label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Kode Paket (Sesuai data EMON)</label>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Alokasi (Rp)</label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Status Tender</label>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Tanggal Mulai Tender</label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Tanggal Berakhir Tender</label>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Tanggal Mulai Kontrak</label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Tanggal Berakhir kontrak</label>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Nilai Kontrak</label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="required fs-6 fw-bold mb-2">Penyedia Jasa</label>
+                        </div>
                         <div class="min-w-150px mt-10 text-end">
                             @if ($data->id)
                             <button id="tombol_simpan" onclick="handle_save('#tombol_simpan','#form_input','{{route('phln.paket.update',$data->id)}}','PATCH');" class="btn btn-sm btn-primary">Simpan</button>
@@ -85,4 +126,158 @@
     </div>
 </div>
 <script>
+    $('#kontraktual').hide();
+    @if($data->st_tender < 2)
+    $('.label_tanggal').show();
+    @else
+    $('.label_tanggal').hide();
+    @endif
+    @if($data->jenis_paket == 1)
+    $('#kontraktual').show();
+    @else
+    $('#kontraktual').hide();
+    @endif
+    number_only('id_paket');
+    number_only('alokasi');
+    number_only('target_dana');
+    number_only('real_dana');
+    decimal_only('target_fisik');
+    decimal_only('real_fisik');
+    ribuan('alokasi');
+    ribuan('target_dana');
+    ribuan('real_dana');
+    number_only('nilai_kontrak');
+    ribuan('nilai_kontrak');
+    select2('penarikan','Pilih Penarikan');
+    $("#tanggal_mkontrak").datepicker({
+        todayHighlight: true,
+        autoclose: true,
+        format: 'dd-mm-yyyy',
+        orientation: "bottom left",
+    }).on('changeDate', function (selected) {
+        var startDate = new Date(selected.date.valueOf());
+        $('#tanggal_skontrak').datepicker('setStartDate', startDate);
+    }).on('clearDate', function (selected) {
+        $('#tanggal_skontrak').datepicker('setStartDate', null);
+    });
+    $("#tanggal_skontrak").datepicker({
+        todayHighlight: true,
+        autoclose: true,
+        format: 'dd-mm-yyyy',
+        orientation: "bottom left",
+    });
+    $("#tanggal_mtender").datepicker({
+        todayHighlight: true,
+        autoclose: true,
+        format: 'dd-mm-yyyy',
+        orientation: "bottom left",
+    }).on('changeDate', function (selected) {
+        var startDate = new Date(selected.date.valueOf());
+        $('#tanggal_stender').datepicker('setStartDate', startDate);
+    }).on('clearDate', function (selected) {
+        $('#tanggal_stender').datepicker('setStartDate', null);
+    });
+    $("#tanggal_stender").datepicker({
+        todayHighlight: true,
+        autoclose: true,
+        format: 'dd-mm-yyyy',
+        orientation: "bottom left",
+    })
+    year('tahun_pelaksanaan');
+    year('ta_awp');
+    year('ta_realisasi');
+    year('ta_dipa');
+   
+    select2('prov_id','Pilih Provinsi');
+    select2('kab_id','Pilih Provinsi dulu');
+    @if($data->prov_id)
+    $('#prov_id').val('{{$data->prov_id}}');
+    setTimeout(function(){ 
+        $('#prov_id').trigger('change');
+        setTimeout(function(){ 
+            $('#kab_id').val('{{$data->kab_id}}');
+            $('#kab_id').trigger('change');
+        }, 1200);
+    }, 500);
+    @endif
+    $("#prov_id").change(function(){
+        $.ajax({
+            type: "POST",
+            url: "{{route('phln.get_city')}}",
+            data: {id_prov : $("#prov_id").val()},
+            success: function(response){
+                $("#kab_id").html(response);
+            }
+        });
+    });
+    $("#kategori").change(function(){
+        $.ajax({
+            type: "POST",
+            url: "{{route('phln.category.get_sub')}}",
+            data: {category : $("#kategori").val()},
+            success: function(response){
+                $("#subkategori").html(response);
+            }
+        });
+    });
+    number_only('dipa');
+    ribuan('dipa');
+    number_only('prognosis_dipa');
+    ribuan('prognosis_dipa');
+    number_only('alokasi_paket');
+    ribuan('alokasi_paket');
+    datepicker_end('tanggal_foto');
+    datepicker_end('tanggal_alokasi');
+    datepicker_end('tanggal_dipa');
+    function load_edit_alokasi(id,alokasi,keterangan,tanggal){
+        $("#id_alokasi").val(id);
+        $("#alokasi_paket").val(alokasi);
+        $("#keterangan_alokasi").val(keterangan);
+        $("#tanggal_alokasi").val(tanggal);
+    }
+    function load_edit_dipa(id,tahun,dipa,prognosis,keterangan,tanggal){
+        $("#id_dipa").val(id);
+        $("#ta_dipa").val(tahun);
+        $("#dipa").val(dipa);
+        $("#prognosis_dipa").val(prognosis);
+        $("#keterangan_dipa").val(keterangan);
+        $("#tanggal_dipa").val(tanggal);
+    }
+    function load_edit_awp(ta,bulan,target_dana,target_fisik){
+        $("#ta_awp").val(ta);
+        $("#bulan_awp").val(bulan);
+        $("#target_dana").val(format_ribuan(target_dana));
+        $("#target_fisik").val(format_ribuan(target_fisik));
+    }
+    function load_edit_realisasi(ta,bulan,real_dana,real_fisik,masalah,tindak_lanjut,category,target_penyelesaian,subcategory){
+        $("#ta_realisasi").val(ta);
+        $("#bulan_realisasi").val(bulan);
+        $("#real_dana").val(format_ribuan(real_dana));
+        $("#real_fisik").val(format_ribuan(real_fisik));
+        $("#masalah").html(masalah);
+        $("#tindak_lanjut").html(tindak_lanjut);
+        $("#target_penyelesaian").val(target_penyelesaian);
+        $('#kategori').val(category);
+        setTimeout(function(){ 
+            $('#kategori').trigger('change');
+            setTimeout(function(){ 
+                $('#subkategori').val(subcategory);
+                $('#subkategori').trigger('change');
+            }, 1200);
+        }, 500);
+    }
+    $('#st_tender').change(function(){
+        if(this.value < 2){
+            $('.label_tanggal').show();
+        }else{
+            $('.label_tanggal').hide();
+        }
+    });
+    $('#jenis_paket').change(function(){
+        if(this.value == 1){
+            $('#kontraktual').show();
+        }else{
+            $('#kontraktual').hide();
+        }
+    });
 </script>
