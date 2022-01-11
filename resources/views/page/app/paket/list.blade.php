@@ -46,10 +46,26 @@
                 <span class="fw-bold d-block fs-7">({{$item->kode_paket}}) - {{$item->nama_paket}}</span>
             </td>
             <td>
-                <span class="fw-bold d-block fs-7">{{number_format($item->alokasi,2,',','.')}}</span>
+                <span class="fw-bold d-block fs-7">
+                    @if($item->mata_uang_alokasi)
+                    {{$item->matauang_alokasi->kode}}
+                    <br>
+                    @endif
+                    {{number_format($item->alokasi_valas,2,',','.')}}
+                    <br>
+                    Rp. {{number_format($item->alokasi_rupiah,2,',','.')}}
+                </span>
             </td>
             <td>
-                <span class="fw-bold d-block fs-7">{{number_format($item->nilai_kontrak,2,',','.')}}</span>
+                <span class="fw-bold d-block fs-7">
+                    @if($item->mata_uang_nilai_kontrak)
+                    {{$item->matauang_kontrak->kode}}
+                    <br>
+                    @endif
+                    {{number_format($item->nilai_kontrak_valas,2,',','.')}}
+                    <br>
+                    Rp. {{number_format($item->nilai_kontrak_rupiah,2,',','.')}}
+                </span>
             </td>
             <td>
                 <span class="fw-bold d-block fs-7">

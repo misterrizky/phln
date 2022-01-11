@@ -11,4 +11,7 @@ class PaketAlokasi extends Model
     protected $casts = [
         'tanggal_revisi' => 'date',
     ];
+    public function matauang_alokasi(){
+        return $this->belongsTo(MataUang::class,'mata_uang_alokasi','id');
+    }
 }

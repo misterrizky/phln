@@ -22,7 +22,9 @@ class PaketAlokasiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'paket_id' => 'required',
-            'alokasi' => 'required',
+            'mata_uang_alokasi' => 'required',
+            'alokasi_valas' => 'required',
+            'alokasi_rupiah' => 'required',
             'tanggal_revisi' => 'required',
         ]);
         if ($validator->fails()) {
@@ -32,10 +34,20 @@ class PaketAlokasiController extends Controller
                     'alert' => 'error',
                     'message' => $errors->first('paket_id'),
                 ]);
-            }elseif($errors->has('alokasi')){
+            }elseif($errors->has('mata_uang_alokasi')){
                 return response()->json([
                     'alert' => 'error',
-                    'message' => $errors->first('alokasi'),
+                    'message' => $errors->first('mata_uang_alokasi'),
+                ]);
+            }elseif($errors->has('alokasi_valas')){
+                return response()->json([
+                    'alert' => 'error',
+                    'message' => $errors->first('alokasi_valas'),
+                ]);
+            }elseif($errors->has('alokasi_rupiah')){
+                return response()->json([
+                    'alert' => 'error',
+                    'message' => $errors->first('alokasi_rupiah'),
                 ]);
             }elseif($errors->has('tanggal_revisi')){
                 return response()->json([
@@ -51,7 +63,9 @@ class PaketAlokasiController extends Controller
             $data = new PaketAlokasi;
         }
         $data->paket_id = $paket->id;
-        $data->alokasi = str_replace(',','',$request->alokasi);
+        $data->alokasi_valas = str_replace("_","",str_replace(",",".",str_replace(".","",$request->alokasi_valas)));
+        $data->alokasi_rupiah = str_replace("_","",str_replace(",",".",str_replace(".","",$request->alokasi_rupiah)));
+        $data->mata_uang_alokasi = $request->mata_uang_alokasi;
         $data->tanggal_revisi = $request->tanggal_revisi;
         $data->keterangan = $request->keterangan;
         if($request->id){
@@ -59,7 +73,9 @@ class PaketAlokasiController extends Controller
         }else{
             $data->save();
         }
-        $paket->alokasi = $data->alokasi;
+        $paket->mata_uang_alokasi = $data->mata_uang_alokasi;
+        $paket->alokasi_valas = $data->alokasi_valas;
+        $paket->alokasi_rupiah = $data->alokasi_rupiah;
         $paket->update();
         return response()->json([
             'alert' => 'success',

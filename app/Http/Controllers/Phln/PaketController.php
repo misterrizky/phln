@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Paket;
 use App\Models\Category;
 use App\Models\Kegiatan;
+use App\Models\MataUang;
 use App\Models\PaketAwp;
 use App\Models\Province;
 use Carbon\CarbonPeriod;
@@ -152,8 +153,8 @@ class PaketController extends Controller
     public function create(Kegiatan $kegiatan)
     {
         $provinsi = Province::get();
-        // $penarikan = Penarikan::get();
-        return view('page.app.paket.input', ['data' => new Paket, 'provinsi' => $provinsi,'kegiatan' => $kegiatan]);
+        $matauang = MataUang::get();
+        return view('page.app.paket.input', ['data' => new Paket, 'provinsi' => $provinsi,'matauang'=>$matauang,'kegiatan' => $kegiatan]);
     }
     public function store(Request $request)
     {
@@ -166,14 +167,15 @@ class PaketController extends Controller
                 // 'penarikan_id' => 'required',
                 'kode_paket' => 'required',
                 'nama_paket' => 'required',
-                'alokasi' => 'required',
-                'tanggal_mkontrak' => 'required|date_format:d-m-Y',
-                'tanggal_skontrak' => 'required|date_format:d-m-Y',
-                'tanggal_mtender' => 'required|date_format:d-m-Y',
-                'tanggal_stender' => 'required|date_format:d-m-Y',
+                'mata_uang_nilai_kontrak' => 'required',
+                'tanggal_mkontrak' => 'required|date_format:Y-m-d',
+                'tanggal_skontrak' => 'required|date_format:Y-m-d|after:tanggal_mkontrak',
+                'tanggal_mtender' => 'required|date_format:Y-m-d',
+                'tanggal_stender' => 'required|date_format:Y-m-d|after:tanggal_mtender',
                 'st_tender' => 'required',
-                'nilai_kontrak' => 'required',
                 'penyedia_jasa' => 'required',
+                'nilai_kontrak_valas' => 'required',
+                'nilai_kontrak_rupiah' => 'required',
                 // 'realisasi_t1' => 'required',
             ]);
             if ($validator->fails()) {
@@ -210,10 +212,10 @@ class PaketController extends Controller
                         'alert' => 'error',
                         'message' => $errors->first('nama_paket'),
                     ]);
-                }elseif($errors->has('alokasi')){
+                }elseif($errors->has('mata_uang_nilai_kontrak')){
                     return response()->json([
                         'alert' => 'error',
-                        'message' => $errors->first('alokasi'),
+                        'message' => $errors->first('mata_uang_nilai_kontrak'),
                     ]);
                 }elseif($errors->has('tanggal_mkontrak')){
                     return response()->json([
@@ -240,23 +242,22 @@ class PaketController extends Controller
                         'alert' => 'error',
                         'message' => $errors->first('st_tender'),
                     ]);
-                }elseif($errors->has('nilai_kontrak')){
-                    return response()->json([
-                        'alert' => 'error',
-                        'message' => $errors->first('nilai_kontrak'),
-                    ]);
                 }elseif($errors->has('penyedia_jasa')){
                     return response()->json([
                         'alert' => 'error',
                         'message' => $errors->first('penyedia_jasa'),
                     ]);
+                }elseif($errors->has('nilai_kontrak_valas')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nilai_kontrak_valas'),
+                    ]);
+                }elseif($errors->has('nilai_kontrak_rupiah')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nilai_kontrak_rupiah'),
+                    ]);
                 }
-                // elseif($errors->has('realisasi_t1')){
-                //     return response()->json([
-                //         'alert' => 'error',
-                //         'message' => $errors->first('realisasi_t1'),
-                //     ]);
-                // }
                 
             }
         }
@@ -306,15 +307,20 @@ class PaketController extends Controller
         // $data->penarikan_id = $request->penarikan_id;
         $data->jenis_paket = $request->jenis_paket;
         $data->kode_paket = $request->kode_paket;
-        $data->nama_paket = Str::title($request->nama_paket);
-        $data->alokasi = str_replace(',','',$request->alokasi);
+        $data->nama_paket = $request->nama_paket;
         $data->tanggal_mkontrak = $request->tanggal_mkontrak;
         $data->tanggal_skontrak = $request->tanggal_skontrak;
         $data->tanggal_mtender = $request->tanggal_mtender;
         $data->tanggal_stender = $request->tanggal_stender;
         $data->st_tender = $request->st_tender;
-        $data->nilai_kontrak = str_replace(',','',$request->nilai_kontrak);
         $data->penyedia_jasa = $request->penyedia_jasa;
+        $data->mata_uang_nilai_kontrak = $request->mata_uang_nilai_kontrak;
+        if($request->nilai_kontrak_valas){
+            $data->nilai_kontrak_valas = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai_kontrak_valas)));
+        }
+        if($request->nilai_kontrak_rupiah){
+            $data->nilai_kontrak_rupiah = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai_kontrak_rupiah)));
+        }
         // $data->realisasi_t1 = $request->realisasi_t1;
         $data->save();
         return response()->json([
@@ -349,127 +355,175 @@ class PaketController extends Controller
                 $paket_awp = $paket->paketAwp;
                 $paket_awp_realisasi = $paket->paketAwp->where('real_dana','!=',NULL);
             }
+            $matauang = MataUang::get();
             $kabupaten = City::get();
             $penarikan = Penarikan::get();
-            return view('page.app.paket.input', ['data' => $paket,'kategori' => $kategori, 'paket_dipa' => $paket_dipa, 'paket_awp' => $paket_awp, 'kegiatan' => $kegiatan, 'penarikan' => $penarikan,'provinsi'=>$provinsi,'kabupaten'=>$kabupaten,'paket_awp_realisasi' => $paket_awp_realisasi]);   
+            return view('page.app.paket.input', ['data' => $paket,'matauang'=>$matauang,'kategori' => $kategori, 'paket_dipa' => $paket_dipa, 'paket_awp' => $paket_awp, 'kegiatan' => $kegiatan, 'penarikan' => $penarikan,'provinsi'=>$provinsi,'kabupaten'=>$kabupaten,'paket_awp_realisasi' => $paket_awp_realisasi]);   
         }
     }
     public function update(Request $request, Paket $paket)
     {
-        $validator = Validator::make($request->all(), [
-            'prov_id' => 'required',
-            'kab_id' => 'required',
-            // 'penarikan_id' => 'required',
-            'jenis_paket' => 'required',
-            'kode_paket' => 'required',
-            'nama_paket' => 'required',
-            'alokasi' => 'required',
-            'tanggal_mkontrak' => 'required|date_format:d-m-Y',
-            'tanggal_skontrak' => 'required|date_format:d-m-Y',
-            'tanggal_mtender' => 'required|date_format:d-m-Y',
-            'tanggal_stender' => 'required|date_format:d-m-Y',
-            'st_tender' => 'required',
-            'nilai_kontrak' => 'required',
-            'penyedia_jasa' => 'required',
-            // 'realisasi_t1' => 'required',
-        ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            if($errors->has('prov_id')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('prov_id'),
-                ]);
-            }elseif($errors->has('kab_id')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('kab_id'),
-                ]);
+        $jenispaket = $request->jenis_paket;
+        if($jenispaket == 1){
+            $validator = Validator::make($request->all(), [
+                'prov_id' => 'required',
+                'kab_id' => 'required',
+                'jenis_paket' => 'required',
+                // 'penarikan_id' => 'required',
+                'kode_paket' => 'required',
+                'nama_paket' => 'required',
+                'mata_uang_nilai_kontrak' => 'required',
+                'tanggal_mkontrak' => 'required|date_format:Y-m-d',
+                'tanggal_skontrak' => 'required|date_format:Y-m-d|after:tanggal_mkontrak',
+                'tanggal_mtender' => 'required|date_format:Y-m-d',
+                'tanggal_stender' => 'required|date_format:Y-m-d|after:tanggal_mtender',
+                'st_tender' => 'required',
+                'penyedia_jasa' => 'required',
+                'nilai_kontrak_valas' => 'required',
+                'nilai_kontrak_rupiah' => 'required',
+                // 'realisasi_t1' => 'required',
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+               if($errors->has('prov_id')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('prov_id'),
+                    ]);
+                }elseif($errors->has('kab_id')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('kab_id'),
+                    ]);
+                }
+                // elseif($errors->has('penarikan_id')){
+                //     return response()->json([
+                //         'alert' => 'error',
+                //         'message' => $errors->first('penarikan_id'),
+                //     ]);
+                // }
+                elseif($errors->has('jenis_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('jenis_paket'),
+                    ]);
+                }elseif($errors->has('kode_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('kode_paket'),
+                    ]);
+                }elseif($errors->has('nama_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nama_paket'),
+                    ]);
+                }elseif($errors->has('mata_uang_nilai_kontrak')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('mata_uang_nilai_kontrak'),
+                    ]);
+                }elseif($errors->has('tanggal_mkontrak')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('tanggal_mkontrak'),
+                    ]);
+                }elseif($errors->has('tanggal_skontrak')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('tanggal_skontrak'),
+                    ]);
+                }elseif($errors->has('tanggal_mtender')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('tanggal_mtender'),
+                    ]);
+                }elseif($errors->has('tanggal_stender')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('tanggal_stender'),
+                    ]);
+                }elseif($errors->has('st_tender')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('st_tender'),
+                    ]);
+                }elseif($errors->has('penyedia_jasa')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('penyedia_jasa'),
+                    ]);
+                }elseif($errors->has('nilai_kontrak_valas')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nilai_kontrak_valas'),
+                    ]);
+                }elseif($errors->has('nilai_kontrak_rupiah')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nilai_kontrak_rupiah'),
+                    ]);
+                }
+                
             }
-            // elseif($errors->has('penarikan_id')){
-            //     return response()->json([
-            //         'alert' => 'error',
-            //         'message' => $errors->first('penarikan_id'),
-            //     ]);
-            // }
-            elseif($errors->has('jenis_paket')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('jenis_paket'),
-                ]);
-            }elseif($errors->has('kode_paket')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('kode_paket'),
-                ]);
-            }elseif($errors->has('nama_paket')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('nama_paket'),
-                ]);
-            }elseif($errors->has('alokasi')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('alokasi'),
-                ]);
-            }elseif($errors->has('tanggal_mkontrak')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('tanggal_mkontrak'),
-                ]);
-            }elseif($errors->has('tanggal_skontrak')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('tanggal_skontrak'),
-                ]);
-            }elseif($errors->has('tanggal_mtender')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('tanggal_mtender'),
-                ]);
-            }elseif($errors->has('tanggal_stender')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('tanggal_stender'),
-                ]);
-            }elseif($errors->has('st_tender')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('st_tender'),
-                ]);
-            }elseif($errors->has('nilai_kontrak')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('nilai_kontrak'),
-                ]);
-            }elseif($errors->has('penyedia_jasa')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('penyedia_jasa'),
-                ]);
+        }
+        else{
+            $validatornon = Validator::make($request->all(),[
+                'prov_id' => 'required',
+                'kab_id' => 'required',
+                'jenis_paket' => 'required',
+                'kode_paket' => 'required',
+                'nama_paket' => 'required',
+            ]);
+            if ($validatornon->fails()) {
+                $errors = $validatornon->errors();
+                if($errors->has('prov_id')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('prov_id'),
+                    ]);
+                }elseif($errors->has('kab_id')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('kab_id'),
+                    ]);
+                }
+                elseif($errors->has('jenis_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('jenis_paket'),
+                    ]);
+                }elseif($errors->has('kode_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('kode_paket'),
+                    ]);
+                }elseif($errors->has('nama_paket')){
+                    return response()->json([
+                        'alert' => 'error',
+                        'message' => $errors->first('nama_paket'),
+                    ]);
+                }
             }
-            // elseif($errors->has('realisasi_t1')){
-            //     return response()->json([
-            //         'alert' => 'error',
-            //         'message' => $errors->first('realisasi_t1'),
-            //     ]);
-            // }
-            
         }
         $paket->prov_id = $request->prov_id;
         $paket->kab_id = $request->kab_id;
         // $paket->penarikan_id = $request->penarikan_id;
         $paket->jenis_paket = $request->jenis_paket;
         $paket->kode_paket = $request->kode_paket;
-        $paket->nama_paket = Str::title($request->nama_paket);
-        $paket->alokasi = str_replace(',','',$request->alokasi);
+        $paket->nama_paket = $request->nama_paket;
         $paket->tanggal_mkontrak = $request->tanggal_mkontrak;
         $paket->tanggal_skontrak = $request->tanggal_skontrak;
         $paket->tanggal_mtender = $request->tanggal_mtender;
         $paket->tanggal_stender = $request->tanggal_stender;
         $paket->st_tender = $request->st_tender;
-        $paket->nilai_kontrak = str_replace(',','',$request->nilai_kontrak);
         $paket->penyedia_jasa = $request->penyedia_jasa;
+        $paket->mata_uang_nilai_kontrak = $request->mata_uang_nilai_kontrak;
+        if($request->nilai_kontrak_valas){
+            $paket->nilai_kontrak_valas = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai_kontrak_valas)));
+        }
+        if($request->nilai_kontrak_rupiah){
+            $paket->nilai_kontrak_rupiah = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai_kontrak_rupiah)));
+        }
         // $paket->realisasi_t1 = $request->realisasi_t1;
         $paket->update();
         return response()->json([

@@ -258,7 +258,7 @@ class KegiatanController extends Controller
         $data->donor_id = $request->donor;
         $data->mata_uang_id = $request->mata_uang;
         $data->mata_uang_2_id = $request->mata_uang_2;
-        $data->judul = Str::title($request->judul);
+        $data->judul = $request->judul;
         $data->tujuan = $request->tujuan;
         if($request->nilai){
             $data->nilai = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai)));
@@ -407,7 +407,7 @@ class KegiatanController extends Controller
         $kegiatan->donor_id = $request->donor;
         $kegiatan->mata_uang_id = $request->mata_uang;
         $kegiatan->mata_uang_2_id = $request->mata_uang_2;
-        $kegiatan->judul = Str::title($request->judul);
+        $kegiatan->judul = $request->judul;
         $kegiatan->tujuan = $request->tujuan;
         if($request->nilai){
             $kegiatan->nilai = str_replace("_","",str_replace(",",".",str_replace(".","",$request->nilai)));

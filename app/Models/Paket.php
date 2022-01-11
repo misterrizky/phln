@@ -15,6 +15,12 @@ class Paket extends Model
     public function kabupaten(){
         return $this->belongsTo(City::class,'kab_id','id');
     }
+    public function matauang_alokasi(){
+        return $this->belongsTo(MataUang::class,'mata_uang_alokasi','id');
+    }
+    public function matauang_kontrak(){
+        return $this->belongsTo(MataUang::class,'mata_uang_nilai_kontrak','id');
+    }
     public function penarikan(){
         return $this->belongsTo(Penarikan::class,'penarikan_id','id');
     }

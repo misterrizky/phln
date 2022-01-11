@@ -64,8 +64,8 @@ class PaketDipaController extends Controller
         }
         $data->paket_id = $paket->id;
         $data->tahun = $request->ta;
-        $data->dipa = str_replace(',','',$request->dipa);
-        $data->prognosis = str_replace(',','',$request->prognosis);
+        $data->dipa = str_replace("_","",str_replace(",",".",str_replace(".","",$request->dipa)));
+        $data->prognosis = str_replace("_","",str_replace(",",".",str_replace(".","",$request->prognosis)));
         $data->tanggal_revisi = $request->tanggal_revisi;
         $data->keterangan = $request->keterangan;
         if($request->id){
