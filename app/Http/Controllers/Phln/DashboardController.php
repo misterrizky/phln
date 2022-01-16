@@ -20,29 +20,37 @@ class DashboardController extends Controller
                 $pnilai_alokasi = Kegiatan::where('tipe_kegiatan','=','Pinjaman')->get()->sum('nilai_konversi');
                 $pnilai_penyerapan = Kegiatan::where('tipe_kegiatan','=','Pinjaman')->get()->sum('penyerapan');
                 $pkegiatan_pinjaman = Kegiatan::where('tipe_kegiatan','=','Pinjaman')->get()->count();
-                $ppagu = DB::select(DB::raw('
-                SELECT
-                    SUM("dipa"."dipa") AS "target",
-                    SUM("dipa"."dipa_real") AS "real"
+                $pagu_asc = DB::select(DB::raw('
+                SELECT 
+                    SUM( CASE WHEN "k"."tipe_kegiatan" = \''.'Pinjaman'.'\' THEN "pd"."dipa" ELSE 0 END ) AS "dipa_pinjaman", 
+                    SUM( CASE WHEN "k"."tipe_kegiatan" = \''.'Hibah'.'\' THEN "pd"."dipa" ELSE 0 END ) AS "dipa_hibah" 
                 FROM
-                    "transaction"."kegiatan" AS "tbl"
-                LEFT JOIN "transaction"."kegiatan_dipa" AS "dipa" ON "tbl"."id" = "dipa"."kegiatan_id"
+                "transaction"."kegiatan" "k"
+                    INNER JOIN "transaction"."paket" "p" ON "k"."id" = "p"."kegiatan_id"
+                    INNER JOIN "transaction"."paket_dipa" "pd" ON "p"."id" = "pd"."paket_id" 
                 WHERE
-                    "dipa"."tahun" = \''.$request->keyword.'\'
-                AND
-                    "tbl"."tipe_kegiatan" = \''.'Pinjaman'.'\'
+                    "pd"."tahun" = \''.$request->keyword.'\'
+                GROUP BY
+                    "pd"."tanggal_revisi" 
+                ORDER BY
+                    "pd"."tanggal_revisi" ASC 
+                    LIMIT 1
                 '));
-                $hpagu = DB::select(DB::raw('
-                SELECT
-                    SUM("dipa"."dipa") AS "target",
-                    SUM("dipa"."dipa_real") AS "real"
+                $pagu_desc = DB::select(DB::raw('
+                SELECT 
+                    SUM( CASE WHEN "k"."tipe_kegiatan" = \''.'Pinjaman'.'\' THEN "pd"."dipa" ELSE 0 END ) AS "dipa_pinjaman", 
+                    SUM( CASE WHEN "k"."tipe_kegiatan" = \''.'Hibah'.'\' THEN "pd"."dipa" ELSE 0 END ) AS "dipa_hibah" 
                 FROM
-                    "transaction"."kegiatan" AS "tbl"
-                LEFT JOIN "transaction"."kegiatan_dipa" AS "dipa" ON "tbl"."id" = "dipa"."kegiatan_id"
+                "transaction"."kegiatan" "k"
+                    INNER JOIN "transaction"."paket" "p" ON "k"."id" = "p"."kegiatan_id"
+                    INNER JOIN "transaction"."paket_dipa" "pd" ON "p"."id" = "pd"."paket_id" 
                 WHERE
-                    "dipa"."tahun" = \''.$request->keyword.'\'
-                AND
-                    "tbl"."tipe_kegiatan" = \''.'Hibah'.'\'
+                    "pd"."tahun" = \''.$request->keyword.'\'
+                GROUP BY
+                    "pd"."tanggal_revisi" 
+                ORDER BY
+                    "pd"."tanggal_revisi" DESC 
+                    LIMIT 1
                 '));
                 $hnilai_alokasi = Kegiatan::where('tipe_kegiatan','=','Hibah')->get()->sum('nilai_konversi');
                 $hlnilai_alokasi = HibahLangsung::get()->sum('nilai_rp');
@@ -50,9 +58,8 @@ class DashboardController extends Controller
                 $hlnilai_penyerapan = HibahLangsung::get()->sum('real_rp');
                 $hkegiatan_pinjaman = Kegiatan::where('tipe_kegiatan','=','Hibah')->get()->count();
                 $hlkegiatan_pinjaman = HibahLangsung::select('no_register')->groupBy('no_register')->get()->count();
-                $title_dipa_pagu = "DIPA Pagu (".$request->keyword.")";
-                $title_dipa_realisasi = "DIPA Realisasi (".$request->keyword.")";
-                return view('page.app.dashboard.list_main',compact('pkegiatan_pinjaman','pnilai_alokasi','pnilai_penyerapan','ppagu','hpagu','hkegiatan_pinjaman','hnilai_alokasi','hnilai_penyerapan','hlkegiatan_pinjaman','hlnilai_alokasi','hlnilai_penyerapan','title_dipa_pagu','title_dipa_realisasi'));
+                $title_dipa_pagu = "DIPA (".$request->keyword.")";
+                return view('page.app.dashboard.list_main',compact('pkegiatan_pinjaman','pnilai_alokasi','pnilai_penyerapan','pagu_asc','pagu_desc','hkegiatan_pinjaman','hnilai_alokasi','hnilai_penyerapan','hlkegiatan_pinjaman','hlnilai_alokasi','hlnilai_penyerapan','title_dipa_pagu'));
             }
             return view('page.app.dashboard.main');
         }else{

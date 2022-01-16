@@ -15,7 +15,7 @@ $role = Auth::guard('office')->user()->role;
             </span>
         </h3>
         <div class="card-toolbar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Klik untuk kembali">
-            <a href="javascript:;" onclick="load_list(1);" class="btn btn-sm btn-light btn-active-primary">
+            <a href="javascript:;" onclick="main_content('content_list');3" class="btn btn-sm btn-light btn-active-primary">
                 <span class="svg-icon svg-icon-3">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -33,26 +33,26 @@ $role = Auth::guard('office')->user()->role;
         <div class="card-toolbar">
             <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik">1. Informasi Paket</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik" data-href="tab_ik">1. Informasi Paket</a>
                 </li>
                 @if($data->id)
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_foto">2. Foto</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_foto" data-href="tab_foto">2. Foto</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_alokasi">3. Alokasi</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_alokasi" data-href="tab_alokasi">3. Alokasi</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dipa">4. DIPA PAGU</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dipa" data-href="tab_dipa">4. DIPA PAGU</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_awp">5. AWP</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_awp" data-href="tab_awp">5. AWP</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_realisasi">6. Realisasi</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_realisasi" data-href="tab_realisasi">6. Realisasi</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_masalah">7. Masalah</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_masalah" data-href="tab_masalah">7. Masalah</a>
                 </li>
                 @endif
             </ul>
@@ -163,7 +163,7 @@ $role = Auth::guard('office')->user()->role;
                         <div class="row mt-5">
                             <div class="col-lg-4">
                                 <label class="required fs-6 fw-bold mb-2">Mata Uang</label>
-                                <input type="text" value="{{$data->matauang_alokasi->kode}}" class="form-control" readonly/>
+                                <input type="text" value="{{$data->mata_uang_alokasi ? $data->matauang_alokasi->kode : ''}}" class="form-control" readonly/>
                             </div>
                             <div class="col-lg-4">
                                 <label class="required fs-6 fw-bold mb-2">Valas</label>
@@ -231,7 +231,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_foto" onclick="handle_upload('#tombol_simpan_foto','#form_input_foto','{{route('phln.paket-foto.store')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_foto" onclick="handle_upload('#tombol_simpan_foto','#form_input_foto','{{route('phln.paket-foto.store')}}','POST','tab_foto');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>
@@ -317,7 +317,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_alokasi" onclick="handle_save('#tombol_simpan_alokasi','#form_input_alokasi','{{route('phln.paket-alokasi.store')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_alokasi" onclick="handle_save('#tombol_simpan_alokasi','#form_input_alokasi','{{route('phln.paket-alokasi.store')}}','POST','tab_alokasi');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>
@@ -409,7 +409,7 @@ $role = Auth::guard('office')->user()->role;
                                 <label class="required fs-6 fw-bold mb-2">Tahun</label>
                                 <div class="input-group mb-5">
                                     <input type="text" id="ta_dipa" name="ta" class="form-control" placeholder="Masukkan Tahun" readonly/>
-                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}');">Filter</span>
+                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}','tab_dipa');">Filter</span>
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -433,7 +433,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_keterangan" onclick="handle_save('#tombol_simpan_keterangan','#form_input_dipa','{{route('phln.paket-dipa.store')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_keterangan" onclick="handle_save('#tombol_simpan_keterangan','#form_input_dipa','{{route('phln.paket-dipa.store')}}','POST','tab_dipa');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>
@@ -496,7 +496,7 @@ $role = Auth::guard('office')->user()->role;
                                 <label class="required fs-6 fw-bold mb-2">Tahun</label>
                                 <div class="input-group mb-5">
                                     <input type="text" id="ta_awp" name="ta" class="form-control" placeholder="Masukkan Tahun" readonly/>
-                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}');">Filter</span>
+                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}','tab_awp');">Filter</span>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -529,7 +529,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_awp" onclick="handle_save('#tombol_simpan_awp','#form_input_awp','{{route('phln.paket-awp.store')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_awp" onclick="handle_save('#tombol_simpan_awp','#form_input_awp','{{route('phln.paket-awp.store')}}','POST','tab_awp');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>
@@ -594,7 +594,7 @@ $role = Auth::guard('office')->user()->role;
                                 <label class="required fs-6 fw-bold mb-2">Tahun</label>
                                 <div class="input-group mb-5">
                                     <input type="text" id="ta_realisasi" name="ta" class="form-control" placeholder="Masukkan Tahun" readonly/>
-                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}');">Filter</span>
+                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}','tab_realisasi');">Filter</span>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -627,7 +627,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_realisasi" onclick="handle_save('#tombol_simpan_realisasi','#form_input_realisasi','{{route('phln.paket-awp.update')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_realisasi" onclick="handle_save('#tombol_simpan_realisasi','#form_input_realisasi','{{route('phln.paket-awp.update')}}','POST','tab_realisasi');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>
@@ -692,7 +692,7 @@ $role = Auth::guard('office')->user()->role;
                                 <label class="required fs-6 fw-bold mb-2">Tahun</label>
                                 <div class="input-group mb-5">
                                     <input type="text" id="ta_masalah" name="ta" class="form-control" placeholder="Masukkan Tahun" readonly/>
-                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}');">Filter</span>
+                                    <span class="input-group-text" id="basic-addon1" onclick="load_input('{{route('phln.paket.edit',[$data->kegiatan_id,$data->id])}}','tab_masalah');">Filter</span>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -746,7 +746,7 @@ $role = Auth::guard('office')->user()->role;
                         </div>
                         <div class="row mt-5">
                             <div class="min-w-150px mt-10 text-end">
-                                <button id="tombol_simpan_masalah" onclick="handle_save('#tombol_simpan_masalah','#form_input_masalah','{{route('phln.paket-awp.update_masalah')}}','POST');" class="btn btn-sm btn-primary">Simpan</button>
+                                <button id="tombol_simpan_masalah" onclick="handle_save('#tombol_simpan_masalah','#form_input_masalah','{{route('phln.paket-awp.update_masalah')}}','POST','tab_masalah');" class="btn btn-sm btn-primary">Simpan</button>
                             </div>
                         </div>
                     </form>

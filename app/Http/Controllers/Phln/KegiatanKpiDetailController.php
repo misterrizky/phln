@@ -16,7 +16,6 @@ class KegiatanKpiDetailController extends Controller
             'id_kpi' => 'required',
             'tahun' => 'required',
             'target' => 'required',
-            'capaian' => 'required',
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
@@ -34,11 +33,6 @@ class KegiatanKpiDetailController extends Controller
                 return response()->json([
                     'alert' => 'error',
                     'message' => $errors->first('target'),
-                ]);
-            }elseif($errors->has('capaian')){
-                return response()->json([
-                    'alert' => 'error',
-                    'message' => $errors->first('capaian'),
                 ]);
             }
         }

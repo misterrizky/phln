@@ -5,7 +5,7 @@
             <span class="text-muted mt-1 fw-bold fs-7">Pinjaman</span>
         </h3>
         <div class="card-toolbar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Klik untuk kembali">
-            <a href="javascript:;" onclick="load_list(1);" class="btn btn-sm btn-light btn-active-primary">
+            <a href="javascript:;" onclick="main_content('content_list');" class="btn btn-sm btn-light btn-active-primary">
                 <span class="svg-icon svg-icon-3">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -21,28 +21,28 @@
     </div>
     <div class="card-header card-header-stretch">
         <div class="card-toolbar">
-            <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0">
+            <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0" id="tab_kegiatan">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik">1. Informasi Kegiatan</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_ik" data-href="tab_ik">1. Informasi Kegiatan</a>
                 </li>
                 @if($data->id)
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ea">2. EA</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ea" data-href="tab_ea">2. EA</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ia">3. IA</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ia" data-href="tab_ia">3. IA</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dmu">4. DMU</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_dmu" data-href="tab_dmu">4. DMU</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_kpi">5. KPI</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_kpi" data-href="tab_kpi">5. KPI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_arsip">6. Arsip</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_arsip" data-href="tab_arsip">6. Arsip</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_pagu">7. DIPA (PAGU)</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab_pagu" data-href="tab_pagu">7. DIPA (PAGU)</a>
                 </li>
                 @endif
             </ul>
@@ -200,7 +200,7 @@
                             <select name="exec_satker" id="exec_satker" class="form-control"></select>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_exec" type="button" onclick="handle_save('#tombol_simpan_exec','#form_input_exec','{{route('phln.kegiatan.storeExec')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_exec" type="button" onclick="handle_save('#tombol_simpan_exec','#form_input_exec','{{route('phln.kegiatan.storeExec')}}','POST','tab_ea');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -268,7 +268,7 @@
                             <select name="imp_satker" id="imp_satker" class="form-control"></select>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_imp" type="button" onclick="handle_save('#tombol_simpan_imp','#form_input_imp','{{route('phln.kegiatan.storeImp')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_imp" type="button" onclick="handle_save('#tombol_simpan_imp','#form_input_imp','{{route('phln.kegiatan.storeImp')}}','POST','tab_ia');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -355,7 +355,7 @@
                             </select>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_mu" type="button" onclick="handle_save('#tombol_simpan_mu','#form_input_mu','{{route('phln.management-unit.store')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_mu" type="button" onclick="handle_save('#tombol_simpan_mu','#form_input_mu','{{route('phln.management-unit.store')}}','POST','tab_dmu');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -444,7 +444,7 @@
                             <textarea name="keterangan" id="keterangan" class="form-control"></textarea>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_kpi" type="button" onclick="handle_save('#tombol_simpan_kpi','#form_input_kpi','{{route('phln.kegiatan-kpi.store')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_kpi" type="button" onclick="handle_save('#tombol_simpan_kpi','#form_input_kpi','{{route('phln.kegiatan-kpi.store')}}','POST','tab_kpi');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -571,7 +571,7 @@
                             <textarea name="deskripsi" id="deskripsi" class="form-control"></textarea>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_dokumen" onclick="handle_upload('#tombol_simpan_dokumen','#form_input_dokumen','{{route('phln.kegiatan-dokumen.store')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_dokumen" onclick="handle_upload('#tombol_simpan_dokumen','#form_input_dokumen','{{route('phln.kegiatan-dokumen.store')}}','POST','tab_arsip');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -644,7 +644,7 @@
                             <input type="tel" name="dipa_real" id="dipa_real" class="form-control" placeholder="Masukkan DIPA Real"/>
                         </div>
                         <div class="min-w-150px mt-10 text-end">
-                            <button id="tombol_simpan_dipa" type="button" onclick="handle_save('#tombol_simpan_dipa','#form_input_dipa','{{route('phln.kegiatan-dipa.store')}}','POST');" class="btn btn-primary mr-2">Tambah</button>
+                            <button id="tombol_simpan_dipa" type="button" onclick="handle_save('#tombol_simpan_dipa','#form_input_dipa','{{route('phln.kegiatan-dipa.store')}}','POST','tab_pagu');" class="btn btn-primary mr-2">Tambah</button>
                         </div>
                     </div>
                 </form>

@@ -69,8 +69,8 @@
             </td>
             <td>
                 <span class="fw-bold d-block fs-7">
-                    Mulai :{{$item->tanggal_mkontrak->format('j M Y')}} <br>
-                    Selesai :{{$item->tanggal_skontrak->format('j M Y')}} <br>
+                    Mulai :{{$item->tanggal_mkontrak ? $item->tanggal_mkontrak->format('j M Y') : 'Belum diketahui'}} <br>
+                    Selesai :{{$item->tanggal_skontrak ? $item->tanggal_skontrak->format('j M Y') : 'Belum diketahui'}} <br>
                 </span>
             </td>
             <td>

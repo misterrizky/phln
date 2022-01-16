@@ -66,7 +66,7 @@ function handle_open_modal(url,modal,content){
         },
     });
 }
-function handle_save_modal(tombol, form, url, method, modal){
+function handle_save_modal(tombol, form, url, method, modal,tab){
     $(tombol).submit(function() {
         return false;
     });
@@ -84,6 +84,15 @@ function handle_save_modal(tombol, form, url, method, modal){
             // loaded_modal();
             if (response.alert == "success") {
                 success_toastr(response.message);
+                if(response.redirect == "input"){
+                    load_input(response.route);
+                    setTimeout(function() {
+                        $('a[data-href=tab_ik]').removeClass('active');
+                        $('a[data-href='+tab+']').addClass('active');
+                        $('div[id=tab_ik]').removeClass('show active');
+                        $('div[id='+tab+']').addClass('show active');
+                    }, 1000);
+                }
                 $(form)[0].reset();
                 setTimeout(function() {
                     $(modal).modal('hide');
@@ -98,7 +107,7 @@ function handle_save_modal(tombol, form, url, method, modal){
         },
     });
 }
-function handle_confirm(title, confirm_title, deny_title, method, route){
+function handle_confirm(title, confirm_title, deny_title, method, route,tab){
     Swal.fire({
         title: title,
         showDenyButton: true,
@@ -115,6 +124,12 @@ function handle_confirm(title, confirm_title, deny_title, method, route){
                     Swal.fire(response.message, '', response.alert)
                     if(response.redirect == "input"){
                         load_input(response.route);
+                        setTimeout(function() {
+                            $('a[data-href=tab_ik]').removeClass('active');
+                            $('a[data-href='+tab+']').addClass('active');
+                            $('div[id=tab_ik]').removeClass('show active');
+                            $('div[id='+tab+']').addClass('show active');
+                        }, 1000);
                     }
                     if(!response.redirect){
                         load_list(1);
@@ -126,7 +141,7 @@ function handle_confirm(title, confirm_title, deny_title, method, route){
         }
     });
 }
-function handle_confirm_modal(title, confirm_title, deny_title, method, route, modal){
+function handle_confirm_modal(title, confirm_title, deny_title, method, route, modal,tab){
     Swal.fire({
         title: title,
         showDenyButton: true,
@@ -144,6 +159,12 @@ function handle_confirm_modal(title, confirm_title, deny_title, method, route, m
                     $(modal).modal('hide');
                     if(response.redirect == "input"){
                         load_input(response.route);
+                        setTimeout(function() {
+                            $('a[data-href=tab_ik]').removeClass('active');
+                            $('a[data-href='+tab+']').addClass('active');
+                            $('div[id=tab_ik]').removeClass('show active');
+                            $('div[id='+tab+']').addClass('show active');
+                        }, 1000);
                     }
                     if(!response.redirect){
                         load_list(1);
@@ -155,7 +176,7 @@ function handle_confirm_modal(title, confirm_title, deny_title, method, route, m
         }
     });
 }
-function handle_save(tombol, form, url, method){
+function handle_save(tombol, form, url, method, tab){
     $(tombol).submit(function() {
         return false;
     });
@@ -175,6 +196,12 @@ function handle_save(tombol, form, url, method){
                 $(form)[0].reset();
                 if(response.redirect == "input"){
                     load_input(response.route);
+                    setTimeout(function() {
+                        $('a[data-href=tab_ik]').removeClass('active');
+                        $('a[data-href='+tab+']').addClass('active');
+                        $('div[id=tab_ik]').removeClass('show active');
+                        $('div[id='+tab+']').addClass('show active');
+                    }, 1000);
                 }
                 if(!response.redirect){
                     setTimeout(function() {
@@ -192,7 +219,7 @@ function handle_save(tombol, form, url, method){
         },
     });
 }
-function handle_upload(tombol, form, url, method){
+function handle_upload(tombol, form, url, method,tab){
     $(document).one('submit', form, function(e) {
         let data = new FormData(this);
         data.append('_method', method);
@@ -216,6 +243,12 @@ function handle_upload(tombol, form, url, method){
                     $(form)[0].reset();
                     if(response.redirect == "input"){
                         load_input(response.route);
+                        setTimeout(function() {
+                            $('a[data-href=tab_ik]').removeClass('active');
+                            $('a[data-href='+tab+']').addClass('active');
+                            $('div[id=tab_ik]').removeClass('show active');
+                            $('div[id='+tab+']').addClass('show active');
+                        }, 1000);
                     }
                     $(tombol).prop("disabled", false);
                     setTimeout(function() {

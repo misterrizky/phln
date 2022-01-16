@@ -7,7 +7,7 @@ use App\Http\Controllers\Master\RateController;
 use App\Http\Controllers\Master\UnorController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Master\DonorController;
-use App\Http\Controllers\master\SatkerController;
+use App\Http\Controllers\Master\SatkerController;
 use App\Http\Controllers\Master\SektorController;
 use App\Http\Controllers\Phln\KegiatanController;
 use App\Http\Controllers\Phln\PaketAwpController;
