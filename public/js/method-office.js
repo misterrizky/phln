@@ -47,10 +47,16 @@ function load_list(page){
         main_content('content_list');
     }, "html");
 }
-function load_input(url){
+function load_input(url, tab){
     $.get(url, $('#content_filter_input').serialize(), function(result) {
         $('#content_input').html(result);
         main_content('content_input');
+        setTimeout(function() {
+            $('a[data-href=tab_ik]').removeClass('active');
+            $('a[data-href='+tab+']').addClass('active');
+            $('div[id=tab_ik]').removeClass('show active');
+            $('div[id='+tab+']').addClass('show active');
+        }, 1000);
     }, "html");
 }
 function handle_open_modal(url,modal,content){

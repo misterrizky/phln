@@ -892,6 +892,7 @@ $role = Auth::guard('office')->user()->role;
     year('ta_awp');
     year('ta_realisasi');
     year('ta_dipa');
+    year('ta_masalah');
    
     select2('prov_id','Pilih Provinsi');
     select2('kab_id','Pilih Provinsi dulu');

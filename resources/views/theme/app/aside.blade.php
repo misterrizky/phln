@@ -77,6 +77,22 @@
                                 <span class="menu-title">Evaluasi Kinerja Penyerapan</span>
                             </a>
                         </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Prognosis & Penyerapan DIPA</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Sandingan Alokasi & Realisasi</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 

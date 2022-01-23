@@ -18,6 +18,7 @@ use App\Http\Controllers\Phln\PaketDipaController;
 use App\Http\Controllers\Phln\PaketFotoController;
 use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\Master\MataUangController;
+use App\Http\Controllers\Phln\PaketKurvaController;
 use App\Http\Controllers\Phln\KegiatanImpController;
 use App\Http\Controllers\Phln\KegiatanKpiController;
 use App\Http\Controllers\Master\DepartmentController;
@@ -41,6 +42,13 @@ Route::group(['domain' => ''], function() {
             Route::post('reset',[AuthController::class, 'do_reset'])->name('reset');
         });
         Route::middleware(['auth:office'])->group(function(){
+            Route::get('storage-link', function(){
+                Artisan::call('storage:link');
+                return response()->json([
+                    'alert' => 'success',
+                    'message' => 'Storage Linked!'
+                ]);
+            })->name('storage.link');
             Route::get('dashboard',[DashboardController::class, 'index'])->name('dashboard.index');
             Route::get('dashboard-profil',[DashboardController::class, 'profil'])->name('dashboard.profil');
             Route::get('dashboard-pendanaan',[DashboardController::class, 'pendanaan'])->name('dashboard.pendanaan');
@@ -87,6 +95,7 @@ Route::group(['domain' => ''], function() {
             Route::get('kegiatan/{kegiatan}/paket-timeline', [PaketController::class, 'paket_timeline'])->name('paket_timeline');
             Route::get('kegiatan/{kegiatan}/paket-owp', [PaketController::class, 'paket_owp'])->name('paket_owp');
             Route::get('kegiatan/{kegiatan}/paket-awp', [PaketController::class, 'paket_awp'])->name('paket_awp');
+            Route::get('kegiatan/{kegiatan}/paket-kurva', [PaketKurvaController::class, 'index'])->name('paket_kurva');
             Route::post('kegiatan/storeExec', [KegiatanExecController::class,'store'])->name('kegiatan.storeExec');
             Route::delete('kegiatan/{kegiatanExec}/deleteExec', [KegiatanExecController::class,'destroy'])->name('kegiatan.destroyExec');
             Route::post('kegiatan/storeImp', [KegiatanImpController::class,'store'])->name('kegiatan.storeImp');
