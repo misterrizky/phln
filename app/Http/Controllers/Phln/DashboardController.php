@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Phln;
 
 use App\Models\Kegiatan;
+use App\Models\PaketDipa;
 use App\Models\KegiatanDipa;
 use Illuminate\Http\Request;
+use App\Models\HibahLangsung;
+use App\Models\PaketDipaBulan;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\HibahLangsung;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -312,5 +314,47 @@ class DashboardController extends Controller
             return view('page.app.dashboard.list_evaluasi', compact('evaluasi'));
         }
         return view('page.app.dashboard.evaluasi_kinerja');
+    }
+    public function prognosis(Request $request)
+    {
+        // $collection = PaketDipa::where('tahun','=','2021')->latest('tanggal_revisi')->first()->sum('dipa');
+        // dd($collection);
+        $arr = array();
+        if ($request->ajax()) {
+            $tahun = $request->keyword;
+            $kegiatan = Kegiatan::get();
+            $dipa = 0;
+            $real = 0;
+            $prognosis = 0;
+            foreach($kegiatan as $k){
+                foreach($k->paket as $p){
+                    $real += PaketDipaBulan::where('ta',$request->keyword)->where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
+                    $dipa += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
+                    $prognosis += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('prognosis');
+                }
+            }
+            $tt = $dipa - $prognosis;
+            $bt = $dipa - $tt - $real;
+            $temp = array(
+                [
+                    'kategori'=>'',
+                    'tt'=>$tt,
+                    'bt'=>$bt,
+                    'real'=>$real
+                ],
+            );
+            $pp = number_format(($prognosis/$dipa)*100,2);
+            $result = json_encode($temp);
+            return view('page.app.dashboard.list_prognosis', compact('result','tahun','pp'));
+        }
+        return view('page.app.dashboard.prognosis');
+    }
+    public function jknp(Request $request)
+    {
+        if ($request->ajax()) {
+            $kegiatan = Kegiatan::select('sektor_id')->selectRaw('SUM(nilai_konversi) as nilai')->selectRaw('COUNT(sektor_id) as total')->where('tipe_kegiatan',$request->kategori)->groupBy('sektor_id')->orderByRaw('nilai DESC')->get();
+            return view('page.app.dashboard.list_jknp',compact('kegiatan'));
+        }
+        return view('page.app.dashboard.jknp');
     }
 }

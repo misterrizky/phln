@@ -78,7 +78,7 @@
                             </a>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
+                            <a class="menu-link" href="{{route('phln.dashboard.prognosis')}}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
@@ -86,11 +86,19 @@
                             </a>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
+                            <a class="menu-link" href="{{route('phln.dashboard.sandingan')}}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
                                 <span class="menu-title">Sandingan Alokasi & Realisasi</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="{{route('phln.dashboard.jknp')}}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Jumlah Kegiatan dan Nilai Pinjaman Luar Negeri</span>
                             </a>
                         </div>
                     </div>

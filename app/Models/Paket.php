@@ -96,6 +96,14 @@ class Paket extends Model
     {
         return $this->hasMany(PaketAwp::class,'paket_id','id')->where('ta','=',date('Y'));
     }
+    public function getLastDipaByTahun()
+    {
+        return $this->belongsTo(PaketDipa::class,'id','paket_id')->orderBy('tanggal_revisi','DESC')->first();
+    }
+    public function get_dipa()
+    {
+        return $this->belongsTo(PaketDipa::class,'id','paket_id');
+    }
     protected $casts = [
         'tanggal_mkontrak' => 'date',
         'tanggal_skontrak' => 'date',
