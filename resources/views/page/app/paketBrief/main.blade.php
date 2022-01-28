@@ -117,7 +117,7 @@
                                                                 <td>
                                                                     {{number_format($realisasi)}}
                                                                     <br>
-                                                                    {{$realisasi / $pagu_dipa * 100}} %
+                                                                    {{$realisasi ? $realisasi / $pagu_dipa * 100 : 0}} %
                                                                 </td>
                                                             </tr>
                                                         </tbody>
