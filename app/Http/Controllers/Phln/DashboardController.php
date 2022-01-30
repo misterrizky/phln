@@ -349,11 +349,59 @@ class DashboardController extends Controller
         }
         return view('page.app.dashboard.prognosis');
     }
+    public function sandingan(Request $request)
+    {
+        if ($request->ajax()) {
+            $arr = array();
+            $tipe = $request->kategori;
+            $prov = '';
+            $dipa = 0;
+            $real = 0;
+            $kegiatan = Kegiatan::with('paket')->where('tipe_kegiatan',$tipe)->orderBy('id', 'ASC')->get();
+            foreach ($kegiatan->flatMap->paket->groupBy('prov_id')->toArray() as $p) {
+                dd($p);
+                // $prov = $p->provinsi->nm_prov;
+                $real += PaketDipaBulan::where('ta',$request->keyword)->where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
+                $dipa += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
+                $temp = array(
+                    [
+                        // 'prov'=>$prov,
+                        'real'=>$real,
+                        'dipa'=>$dipa
+                    ],
+                );
+                array_push($arr,$temp);
+            }
+            $result = json_encode($arr);
+            // $pp = number_format(($prognosis/$dipa)*100,2);
+            return view('page.app.dashboard.list_sandingan', compact('result','tipe'));
+        }
+        return view('page.app.dashboard.sandingan');
+    }
     public function jknp(Request $request)
     {
         if ($request->ajax()) {
-            $kegiatan = Kegiatan::select('sektor_id')->selectRaw('SUM(nilai_konversi) as nilai')->selectRaw('COUNT(sektor_id) as total')->where('tipe_kegiatan',$request->kategori)->groupBy('sektor_id')->orderByRaw('nilai DESC')->get();
-            return view('page.app.dashboard.list_jknp',compact('kegiatan'));
+            $tipe = $request->tipe;
+            if($tipe == "Donor"){
+                $kegiatan = Kegiatan::select('donor_id')->selectRaw('SUM(nilai_konversi) as nilai')->selectRaw('COUNT(donor_id) as total')->where('tipe_kegiatan',$request->kategori)->groupBy('donor_id')->orderByRaw('nilai DESC')->get();
+            }else{
+                $kegiatan = Kegiatan::select('sektor_id')->selectRaw('SUM(nilai_konversi) as nilai')->selectRaw('COUNT(sektor_id) as total')->where('tipe_kegiatan',$request->kategori)->groupBy('sektor_id')->orderByRaw('nilai DESC')->get();
+            }
+            $arr = array();
+            foreach($kegiatan as $k){
+                if($tipe == "Donor"){
+                    $nama = $k->donor->nama;
+                }else{
+                    $nama = $k->sektor->nama;
+                }
+                $temp = array(
+                    'name'=>$nama,
+                    'value'=>$k->nilai
+                );
+                array_push($arr,$temp);
+            }
+            $result = json_encode($arr);
+            return view('page.app.dashboard.list_jknp',compact('kegiatan','tipe','result'));
         }
         return view('page.app.dashboard.jknp');
     }

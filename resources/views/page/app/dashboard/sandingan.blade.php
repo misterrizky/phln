@@ -1,10 +1,10 @@
-<x-app-layout title="Prognosis & Penyerapan DIPA">
+<x-app-layout title="Sandingan">
     <div id="content_list">
         <div class="card mb-5 mb-xl-10">
             <div class="card-header border-0 pt-5">
                 <h3 class="card-title align-items-start flex-column">
                     <span class="card-label fw-bolder fs-3 mb-1">Dashboard</span>
-                    <span class="text-muted mt-1 fw-bold fs-7">Prognosis & Penyerapan DIPA</span>
+                    <span class="text-muted mt-1 fw-bold fs-7">Sandingan</span>
                 </h3>
                 <div class="card-toolbar">
                     <div class="row">
@@ -20,7 +20,11 @@
                                             </g>
                                         </svg>
                                     </span>
-                                    <input type="text" id="keyword" name="keyword" value="{{date('Y')}}" onchange="load_list(1);" onkeyup="load_list(1);" class="form-control" placeholder="Cari data..." aria-label="Cari data..." aria-describedby="keywords"/>
+                                    <select class="form-control" name="kategori" onchange="load_list(1);">
+                                        <option value="">Pilih Kategori</option>
+                                        <option value="Pinjaman">Pinjaman</option>
+                                        <option value="Hibah Terencana">Hibah Terencana</option>
+                                    </select>
                                 </div>
                             </form>
                         </div>
