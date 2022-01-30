@@ -357,22 +357,30 @@ class DashboardController extends Controller
             $prov = '';
             $dipa = 0;
             $real = 0;
-            $kegiatan = Kegiatan::with('paket')->where('tipe_kegiatan',$tipe)->orderBy('id', 'ASC')->get();
-            foreach ($kegiatan->flatMap->paket->groupBy('prov_id')->toArray() as $p) {
-                dd($p);
-                // $prov = $p->provinsi->nm_prov;
-                $real += PaketDipaBulan::where('ta',$request->keyword)->where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
-                $dipa += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
-                $temp = array(
-                    [
-                        // 'prov'=>$prov,
-                        'real'=>$real,
-                        'dipa'=>$dipa
-                    ],
-                );
-                array_push($arr,$temp);
+            $kegiatan = Kegiatan::with(['paket'])->where('tipe_kegiatan',$tipe)->orderBy('id', 'ASC')->get();
+            $paket = $kegiatan->flatMap->paket->groupBy('prov_id');
+            // dd($paket);
+            // dd($kegiatan->flatMap->paket->groupBy('prov_id')->toArray());
+            foreach($paket as $c)
+            dd($c);
+            {
+               foreach($c as $p){
+                   dd($p->kode_paket);
+                   // $prov = $p->provinsi->nm_prov;
+                   $real += PaketDipaBulan::where('ta',$request->keyword)->where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
+                   $dipa += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
+                   $temp = array(
+                       [
+                           // 'prov'=>$prov,
+                           'real'=>$real,
+                           'dipa'=>$dipa
+                       ],
+                   );
+                   array_push($arr,$temp);
+               $result = json_encode($arr);
+               }
             }
-            $result = json_encode($arr);
+            
             // $pp = number_format(($prognosis/$dipa)*100,2);
             return view('page.app.dashboard.list_sandingan', compact('result','tipe'));
         }

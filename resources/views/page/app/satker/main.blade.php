@@ -9,7 +9,7 @@
                 <div class="card-toolbar">
                     <div class="row">
                         <div class="col-lg-5">
-                            <a href="javascript:;" onclick="load_input('{{route('phln.department.create')}}');" class="btn btn-sm btn-icon btn-light btn-active-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Klik untuk tambah data">
+                            <a href="javascript:;" onclick="load_input('{{route('phln.satker.create',$unor->id)}}');" class="btn btn-sm btn-icon btn-light btn-active-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Klik untuk tambah data">
                                 <span class="svg-icon svg-icon-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                         <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1" transform="rotate(-90 11.364 20.364)" fill="black" />

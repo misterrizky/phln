@@ -24,7 +24,7 @@
             <div class="row">
                 <div class="col-lg-6">
                     <label class="required fs-6 fw-bold mb-2">Singkatan</label>
-                    <input type="text" class="form-control" name="singkatan" placeholder="Masukkan singkatan..." value="{{$data->kode}}">
+                    <input type="text" class="form-control" name="kode" placeholder="Masukkan singkatan..." value="{{$data->kode}}">
                 </div>
                 <div class="col-lg-6">
                     <label class="required fs-6 fw-bold mb-2">Nama</label>
