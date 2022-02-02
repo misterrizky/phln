@@ -8,4 +8,7 @@ class Province extends Model
 {
     protected $table = 'regional.provinsi';
     public $timestamps = false;
+    public function paket(){
+        return $this->hasMany(Paket::class,'prov_id','id_prov');
+    }
 }

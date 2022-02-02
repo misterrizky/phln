@@ -23,6 +23,9 @@ am4core.ready(function() {
     
     /* Create value axis */
     var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.renderer.minWidth = 50;
+    valueAxis.min = 0;
+    valueAxis.cursorTooltipEnabled = false;
     
     /* Create series */
     var columnSeries = chart.series.push(new am4charts.ColumnSeries());
@@ -49,24 +52,25 @@ am4core.ready(function() {
     columnSeriess.columns.template.propertyFields.strokeDasharray = "columnDash";
     columnSeriess.tooltip.label.textAlign = "middle";
     
-    var lineSeries = chart.series.push(new am4charts.LineSeries());
-    lineSeries.name = "Persentase";
-    lineSeries.dataFields.valueY = "kuning";
-    lineSeries.dataFields.categoryX = "prov";
-    
-    lineSeries.stroke = am4core.color("#fdd400");
-    lineSeries.strokeWidth = 3;
-    lineSeries.propertyFields.strokeDasharray = "lineDash";
-    lineSeries.tooltip.label.textAlign = "top";
-    
-    var bullet = lineSeries.bullets.push(new am4charts.Bullet());
-    bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
-    // bullet.label.text = "{valueY.totalPercent.formatNumber('#.00')}%";
-    bullet.tooltipText = "[#fff font-size: 15px]{categoryX}:\n[/][#fff font-size: 20px]{valueY}%[/] [#fff]{additional}[/]";
-    var circle = bullet.createChild(am4core.Circle);
-    circle.radius = 4;
-    circle.fill = am4core.color("#fff");
-    circle.strokeWidth = 3;
+    var paretoValueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    paretoValueAxis.renderer.opposite = true;
+    paretoValueAxis.min = 0;
+    paretoValueAxis.max = 100;
+    paretoValueAxis.strictMinMax = true;
+    paretoValueAxis.renderer.grid.template.disabled = true;
+    paretoValueAxis.numberFormatter = new am4core.NumberFormatter();
+    paretoValueAxis.numberFormatter.numberFormat = "#'%'"
+    // paretoValueAxis.cursorTooltipEnabled = false;
+
+    var paretoSeries = chart.series.push(new am4charts.LineSeries())
+    paretoSeries.dataFields.valueY = "kuning";
+    paretoSeries.dataFields.categoryX = "prov";
+    paretoSeries.yAxis = paretoValueAxis;
+    paretoSeries.tooltipText = "[#fff font-size: 15px]{categoryX}:\n[/][#fff font-size: 20px]{valueY}%[/] [#fff]{additional}[/]";
+    paretoSeries.bullets.push(new am4charts.CircleBullet());
+    paretoSeries.strokeWidth = 2;
+    paretoSeries.stroke = new am4core.InterfaceColorSet().getFor("alternativeBackground");
+    paretoSeries.strokeOpacity = 0.5;
 
     var lineSeriess = chart.series.push(new am4charts.LineSeries());
     lineSeriess.name = "AVG";
@@ -90,6 +94,8 @@ am4core.ready(function() {
     
     chart.data = data;
     chart.scrollbarX = new am4core.Scrollbar();
+    chart.cursor = new am4charts.XYCursor();
+    chart.cursor.behavior = "panX";
     
 }); // end am4core.ready()
 </script>

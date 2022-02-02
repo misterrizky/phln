@@ -1,7 +1,6 @@
 -- ----------------------------
 -- Table structure for users
 -- ----------------------------
-DROP TABLE IF EXISTS "hrm"."users";
 CREATE TABLE "hrm"."users" (
   "id" int8 NOT NULL GENERATED ALWAYS AS IDENTITY (
 INCREMENT 1

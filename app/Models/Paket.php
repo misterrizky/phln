@@ -104,6 +104,14 @@ class Paket extends Model
     {
         return $this->belongsTo(PaketDipa::class,'id','paket_id');
     }
+    public function get_lastdipa()
+    {
+        return $this->hasMany(PaketDipa::class,'paket_id','id')->orderBy('tanggal_revisi','DESC');
+    }
+    public function paket_dipa_bulan()
+    {
+        return $this->hasMany(PaketDipaBulan::class,'kode_paket','kode_paket');
+    }
     protected $casts = [
         'tanggal_mkontrak' => 'date',
         'tanggal_skontrak' => 'date',
