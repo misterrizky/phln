@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Phln;
 
+use App\Models\Paket;
 use App\Models\Kegiatan;
+use App\Models\Province;
 use App\Models\PaketDipa;
 use App\Models\KegiatanDipa;
 use Illuminate\Http\Request;
@@ -355,32 +357,37 @@ class DashboardController extends Controller
             $arr = array();
             $tipe = $request->kategori;
             $prov = '';
+            $kuning = 0;
+            $merah = 0;
             $dipa = 0;
+            $sumdipa = 0;
             $real = 0;
-            $kegiatan = Kegiatan::with(['paket'])->where('tipe_kegiatan',$tipe)->orderBy('id', 'ASC')->get();
-            $paket = $kegiatan->flatMap->paket->groupBy('prov_id');
-            // dd($paket);
-            // dd($kegiatan->flatMap->paket->groupBy('prov_id')->toArray());
-            foreach($paket as $c)
-            dd($c);
-            {
-               foreach($c as $p){
-                   dd($p->kode_paket);
-                   // $prov = $p->provinsi->nm_prov;
-                   $real += PaketDipaBulan::where('ta',$request->keyword)->where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
-                   $dipa += PaketDipa::where('tahun',$request->keyword)->where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
-                   $temp = array(
-                       [
-                           // 'prov'=>$prov,
-                           'real'=>$real,
-                           'dipa'=>$dipa
-                       ],
-                   );
-                   array_push($arr,$temp);
-               $result = json_encode($arr);
-               }
+            $sumreal = 0;
+            // $prov = Province::pluck('id');
+            // $paket = Paket::join('transaction.kegiatan as k','k.id','paket.kegiatan_id')->whereIn('prov_id', $prov)->where('k.tipe_kegiatan',$tipe)->get();
+            $kegiatan = Kegiatan::where('tipe_kegiatan',$tipe)->orderBy('id', 'ASC')->pluck('id');
+            $paket = Paket::whereIn('kegiatan_id', $kegiatan)->get();
+            foreach ($paket as $p) {
+                $prov = $p->provinsi->nm_prov;
+                $real = PaketDipaBulan::where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
+                $dipa = PaketDipa::where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
+                $sumreal += PaketDipaBulan::where('kode_paket',$p->kode_paket)->get()->sum('real_dana');
+                $sumdipa += PaketDipa::where('paket_id',$p->id)->orderBy('tanggal_revisi','DESC')->limit(1)->get()->sum('dipa');
+                // if($real != 0 AND $dipa != 0)    
+                $kuning = $real != 0 AND $dipa != 0 ? ($real/$dipa) : 0;
+                $merah += $sumreal / $sumdipa*100;
+                $temp = 
+                    [
+                        'prov'=>$prov,
+                        'real'=>$real,
+                        'dipa'=>$dipa,
+                        'kuning'=>number_format($kuning,2),
+                        'merah'=>number_format($merah,2)
+                    ];
+                array_push($arr,$temp);
             }
-            
+            $result = json_encode($arr);
+            // dd($result);
             // $pp = number_format(($prognosis/$dipa)*100,2);
             return view('page.app.dashboard.list_sandingan', compact('result','tipe'));
         }

@@ -44,8 +44,7 @@
     
     var series1 = chart.series.push(new am4charts.ColumnSeries());
     series1.columns.template.width = am4core.percent(80);
-    series1.columns.template.tooltipText =
-      "{name}: {valueY.totalPercent.formatNumber('#.00')}%";
+    series1.columns.template.tooltipText = "{name}: {valueY.totalPercent.formatNumber('#.00')}%";
     series1.name = "Terserap";
     series1.dataFields.categoryX = "kategori";
     series1.dataFields.valueY = "real";
