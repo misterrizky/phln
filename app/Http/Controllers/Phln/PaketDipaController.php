@@ -21,6 +21,7 @@ class PaketDipaController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'kegiatan_id' => 'required',
             'paket_id' => 'required',
             'ta' => 'required',
             'dipa' => 'required',
@@ -29,7 +30,12 @@ class PaketDipaController extends Controller
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
-            if ($errors->has('paket_id')) {
+            if ($errors->has('kegiatan_id')) {
+                return response()->json([
+                    'alert' => 'error',
+                    'message' => $errors->first('kegiatan_id'),
+                ]);
+            }elseif ($errors->has('paket_id')) {
                 return response()->json([
                     'alert' => 'error',
                     'message' => $errors->first('paket_id'),
@@ -62,6 +68,7 @@ class PaketDipaController extends Controller
         }else{
             $data = new PaketDipa;
         }
+        $data->kegiatan_id = $request->kegiatan_id;
         $data->paket_id = $paket->id;
         $data->tahun = $request->ta;
         $data->dipa = str_replace("_","",str_replace(",",".",str_replace(".","",$request->dipa)));

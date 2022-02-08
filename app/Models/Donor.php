@@ -8,4 +8,8 @@ class Donor extends Model
 {
     protected $table = 'master.donor';
     public $timestamps = false;
+    public function kegiatan()
+    {
+        return $this->hasMany(Kegiatan::class);
+    }
 }

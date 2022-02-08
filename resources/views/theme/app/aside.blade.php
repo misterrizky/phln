@@ -53,58 +53,70 @@
                                 <span class="menu-title">Ringkasan</span>
                             </a>
                         </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.pendanaan')}}">
+                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                            <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Pendanaan & Realisasi</span>
-                            </a>
+                                <span class="menu-title">Kumulatif PHLN</span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.jknp')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Jumlah Kegiatan & Nilai PHLN</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.kpkpln')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Kinerja Penyerapan PHLN</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.kinerja')}}">
+                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                            <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kinerja Penyerapan</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Evaluasi Kinerja Penyerapan</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.prognosis')}}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Prognosis & Penyerapan DIPA</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.sandingan')}}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Sandingan Alokasi & Realisasi</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('phln.dashboard.jknp')}}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Jumlah Kegiatan dan Nilai Pinjaman Luar Negeri</span>
-                            </a>
+                                <span class="menu-title">Progress DIPA pertahun</span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.prognosis')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Prognosis & Penyerapan DIPA</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.sandingan')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Sandingan Alokasi & Realisasi per provinsi</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.kppd')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Kinerja Penyerapan PAGU DIPA</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <span class="menu-link">
                         <span class="menu-icon">

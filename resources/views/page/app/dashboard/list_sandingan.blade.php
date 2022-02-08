@@ -33,7 +33,7 @@ am4core.ready(function() {
     columnSeries.dataFields.valueY = "real";
     columnSeries.dataFields.categoryX = "prov";
     
-    columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+    columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}M[/] [#fff]{additional}[/]"
     columnSeries.columns.template.propertyFields.fillOpacity = "fillOpacity";
     columnSeries.columns.template.propertyFields.stroke = "stroke";
     columnSeries.columns.template.propertyFields.strokeWidth = "strokeWidth";
@@ -45,7 +45,7 @@ am4core.ready(function() {
     columnSeriess.dataFields.valueY = "dipa";
     columnSeriess.dataFields.categoryX = "prov";
     
-    columnSeriess.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+    columnSeriess.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}M[/] [#fff]{additional}[/]"
     columnSeriess.columns.template.propertyFields.fillOpacity = "fillOpacity";
     columnSeriess.columns.template.propertyFields.stroke = "stroke";
     columnSeriess.columns.template.propertyFields.strokeWidth = "strokeWidth";
@@ -65,6 +65,7 @@ am4core.ready(function() {
     var paretoSeries = chart.series.push(new am4charts.LineSeries())
     paretoSeries.dataFields.valueY = "kuning";
     paretoSeries.dataFields.categoryX = "prov";
+    paretoSeries.name = "Persentase Realisasi";
     paretoSeries.yAxis = paretoValueAxis;
     paretoSeries.tooltipText = "[#fff font-size: 15px]{categoryX}:\n[/][#fff font-size: 20px]{valueY}%[/] [#fff]{additional}[/]";
     paretoSeries.bullets.push(new am4charts.CircleBullet());
@@ -73,7 +74,7 @@ am4core.ready(function() {
     paretoSeries.strokeOpacity = 0.5;
 
     var lineSeriess = chart.series.push(new am4charts.LineSeries());
-    lineSeriess.name = "AVG";
+    lineSeriess.name = "Prognosis";
     lineSeriess.dataFields.valueY = "merah";
     lineSeriess.dataFields.categoryX = "prov";
     

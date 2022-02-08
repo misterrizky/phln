@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Phln;
 
+use App\Models\Donor;
 use App\Models\Paket;
 use App\Models\Kegiatan;
 use App\Models\Province;
@@ -354,6 +355,7 @@ class DashboardController extends Controller
     public function sandingan(Request $request)
     {
         if ($request->ajax()) {
+            $tahun = $request->keyword;
             $arr = array();
             $tipe = $request->kategori;
             $prov = '';
@@ -364,18 +366,65 @@ class DashboardController extends Controller
             $real = 0;
             $sumreal = 0;
             $prov = Province::get();
+            $sumreal = DB::select(DB::raw('
+            SELECT 
+                SUM( "real_dana" ) AS "real"
+            FROM
+                "transaction"."paket_dipa_bulan"
+            WHERE
+                "ta" LIKE \'%'.$request->keyword.'%\'
+            '));
+
+            $sumdipa = DB::select(DB::raw('
+            SELECT 
+                SUM( "dipa" ) AS "dipa"
+            FROM
+                "transaction"."paket_dipa"
+            WHERE
+                "tahun" LIKE \'%'.$request->keyword.'%\'
+            GROUP BY
+            "paket_id","tanggal_revisi"
+            ORDER BY "tanggal_revisi" DESC LIMIT 1
+            '));
+            $sumreal = $sumreal ? $sumreal[0]->real : 0;
+            $sumdipa = $sumdipa ? $sumdipa[0]->dipa : 0;
+            $merah = $sumreal ? ($sumreal / $sumdipa) * 100 : $sumreal;
             foreach($prov AS $prv){
                 foreach($prv->paket as $pkt){
-                    $real = $pkt->paket_dipa_bulan->sum('real_dana');
-                    $dipa = $pkt->get_lastdipa->sum('dipa');
+                    $real = $pkt->paket_dipa_bulan->where('ta','LIKE','%'.$tahun.'%')->sum('real_dana');
+                    $real = DB::select(DB::raw('
+                    SELECT 
+                        SUM( "real_dana" ) AS "real"
+                    FROM
+                        "transaction"."paket_dipa_bulan"
+                    WHERE
+                        "ta" LIKE \'%'.$request->keyword.'%\'
+                    AND
+                        "kode_paket" = \''.$pkt->kode_paket.'\'
+                    '));
+                    $real = $real ? $real[0]->real:0;
+                    $dipa = DB::select(DB::raw('
+                    SELECT 
+                        SUM( "dipa" ) AS "dipa"
+                    FROM
+                        "transaction"."paket_dipa"
+                    WHERE
+                        "tahun" LIKE \'%'.$request->keyword.'%\'
+                    AND
+                        "paket_id" = \''.$pkt->id.'\'
+                    GROUP BY
+                    "tanggal_revisi"
+                    ORDER BY "tanggal_revisi" DESC LIMIT 1
+                    '));
+                    $dipa = $dipa ? $dipa[0]->dipa:0;
                     $kuning = $real ? ($real / $dipa) *100 : 0;
                     $temp = 
                         [
                             'prov'=>$prv->nm_prov,
-                            'real'=>$real,
-                            'dipa'=>$dipa,
+                            'real'=>$real > 0 ? $real / 1000000000:$real,
+                            'dipa'=>$dipa > 0 ? $dipa / 1000000000:$dipa,
                             'kuning'=>$kuning,
-                            'merah'=>0
+                            'merah'=>$merah
                         ];
                     array_push($arr,$temp);
                 }
@@ -396,7 +445,7 @@ class DashboardController extends Controller
             $result = json_encode($arr);
             // dd($result);
             // $pp = number_format(($prognosis/$dipa)*100,2);
-            return view('page.app.dashboard.list_sandingan', compact('result','tipe'));
+            return view('page.app.dashboard.list_sandingan', compact('result','tipe','tahun'));
         }
         return view('page.app.dashboard.sandingan');
     }
@@ -426,5 +475,210 @@ class DashboardController extends Controller
             return view('page.app.dashboard.list_jknp',compact('kegiatan','tipe','result'));
         }
         return view('page.app.dashboard.jknp');
+    }
+    public function kpkpln(Request $request)
+    {
+        if ($request->ajax()) {
+            $tipe = $request->tipe;
+            if($tipe == "Donor"){
+                $pie = DB::select(DB::raw('
+                SELECT
+                    unnest(ARRAY[1,2]) as "type",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."donor" "d" ON "k"."donor_id" = "d"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id"
+                '));
+                $kegiatan = DB::select(DB::raw('
+                SELECT
+                    "d"."nama",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."donor" "d" ON "k"."donor_id" = "d"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id" 
+                GROUP BY
+                    "d"."nama"
+                ORDER BY
+                    "persen" DESC
+                '));
+                $lkegiatan = DB::select(DB::raw('
+                SELECT
+                    "d"."nama",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."donor" "d" ON "k"."donor_id" = "d"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id" 
+                GROUP BY
+                    "d"."nama"
+                ORDER BY
+                    "persen" ASC
+                '));
+            }else{
+                $kegiatan = DB::select(DB::raw('
+                SELECT
+                    "s"."nama",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."sektor" "s" ON "k"."sektor_id" = "s"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id" 
+                GROUP BY
+                    "s"."nama"
+                ORDER BY
+                    "persen" DESC
+                '));
+                $lkegiatan = DB::select(DB::raw('
+                SELECT
+                    "s"."nama",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."sektor" "s" ON "k"."sektor_id" = "s"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id" 
+                GROUP BY
+                    "s"."nama"
+                ORDER BY
+                    "persen" ASC
+                '));
+                $pie = DB::select(DB::raw('
+                SELECT
+                    unnest(ARRAY[1,2]) as "type",
+                    SUM ( "k"."nilai_konversi" ) AS "nilai",
+                    SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) AS "real",
+                    (SUM ( CASE WHEN "awp"."real_dana" IS NULL THEN 0 ELSE "awp"."real_dana" END ) / SUM ( "k"."nilai_konversi" ) * 100) AS "persen"
+                FROM
+                    "transaction"."kegiatan" "k"
+                    INNER JOIN "master"."sektor" "d" ON "k"."sektor_id" = "d"."id"
+                    LEFT JOIN "transaction"."paket_awp" "awp" ON "k"."id" = "awp"."kegiatan_id"
+                '));
+            }
+            $arr_p = array();
+            foreach($pie as $item){
+                $nama = "";
+                $jumlah = 0;
+                if($item->type == 1){
+                    $nama = "Undisburse";
+                    $jumlah = $item->nilai - $item->real;
+                }
+                if($item->type == 2){
+                    $nama = "Disburse";
+                    $jumlah = $item->real;
+                }
+                $tempp = array(
+                    "nama"=>$nama,
+                    "jumlah"=>number_format($jumlah/1000000000000,2)
+                );
+                array_push($arr_p, $tempp);
+            }
+            $arr = array();
+            $persen = 0;
+            $sumnilai = 0;
+            foreach($kegiatan as $k){
+                $t = $k->real;
+                $bt = $k->nilai - $k->real;
+                $persen += $k->real / $k->nilai * 100;
+                $sumnilai += $k->real;
+                $temp = array(
+                    'nama'=>$k->nama,
+                    'bt'=>number_format($bt/1000000000000,3),
+                    't'=>number_format($t/1000000000000,3)
+                );
+                array_push($arr,$temp);
+            }
+            $results = json_encode($arr_p);
+            $result = json_encode($arr);
+            return view('page.app.dashboard.list_kpkpln',compact('kegiatan','lkegiatan','tipe','result','persen','sumnilai','results'));
+        }
+        return view('page.app.dashboard.kpkpln');
+    }
+    public function kppd(Request $request)
+    {
+        if ($request->ajax()) {
+            $arr = array();
+            $sumreal = DB::select(DB::raw('
+            SELECT 
+                SUM( "real_dana" ) AS "real"
+            FROM
+                "transaction"."paket_dipa_bulan"
+            WHERE
+                "ta" LIKE \'%'.$request->keyword.'%\'
+            '));
+
+            $sumdipa = DB::select(DB::raw('
+            SELECT 
+                SUM( "dipa" ) AS "dipa"
+            FROM
+                "transaction"."paket_dipa"
+            WHERE
+                "tahun" LIKE \'%'.$request->keyword.'%\'
+            GROUP BY
+            "paket_id","tanggal_revisi"
+            ORDER BY "tanggal_revisi" DESC LIMIT 1
+            '));
+            $sumreal = $sumreal ? $sumreal[0]->real : 0;
+            $sumdipa = $sumdipa ? $sumdipa[0]->dipa : 0;
+            $tipe = $request->tipe;
+            if($tipe == "Donor"){
+                
+                $donor = Donor::get();
+                foreach($donor AS $d){
+                    foreach($d->kegiatan as $k){
+                        foreach($k->paket as $p){
+                            $real = DB::select(DB::raw('
+                            SELECT 
+                                SUM( "real_dana" ) AS "real"
+                            FROM
+                                "transaction"."paket_dipa_bulan"
+                            WHERE
+                                "ta" LIKE \'%'.$request->keyword.'%\'
+                            AND
+                                "kode_paket" = \''.$p->kode_paket.'\'
+                            '));
+                            $real = $real ? $real[0]->real:0;
+                            $dipa = DB::select(DB::raw('
+                            SELECT 
+                                SUM( "dipa" ) AS "dipa"
+                            FROM
+                                "transaction"."paket_dipa"
+                            WHERE
+                                "tahun" LIKE \'%'.$request->keyword.'%\'
+                            AND
+                                "paket_id" = \''.$p->id.'\'
+                            GROUP BY
+                            "tanggal_revisi"
+                            ORDER BY "tanggal_revisi" DESC LIMIT 1
+                            '));
+                            $dipa = $dipa ? $dipa[0]->dipa:0;
+                            $temp = 
+                                [
+                                    'nama'=>$d->nama,
+                                    'real'=>$real > 0 ? $real / 1000000000:$real,
+                                    'dipa'=>$dipa > 0 ? $dipa / 1000000000:$dipa
+                                ];
+                            array_push($arr,$temp);
+                        }
+                    }
+                }
+            }else{
+                
+            }
+            $result = json_encode($arr);
+            dd($result);
+            return view('page.app.dashboard.list_kppd',compact('kegiatan','lkegiatan','tipe','result','persen','sumnilai','results'));
+        }
+        return view('page.app.dashboard.kppd');
     }
 }

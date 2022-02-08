@@ -405,6 +405,7 @@ $role = Auth::guard('office')->user()->role;
                         <div class="row">
                             <div class="col-lg-4">
                                 <input type="hidden" id="id_dipa" name="id" class="form-control" placeholder="Masukkan"/>
+                                <input value="{{$data->kegiatan_id}}" type="hidden" name="kegiatan_id" class="form-control" placeholder="Masukkan Kode Register"/>
                                 <input value="{{$data->id}}" type="hidden" name="paket_id" class="form-control" placeholder="Masukkan Kode Register"/>
                                 <label class="required fs-6 fw-bold mb-2">Tahun</label>
                                 <div class="input-group mb-5">
