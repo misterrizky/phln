@@ -632,51 +632,45 @@ class DashboardController extends Controller
             $sumdipa = $sumdipa ? $sumdipa[0]->dipa : 0;
             $tipe = $request->tipe;
             if($tipe == "Donor"){
-                
-                $donor = Donor::get();
-                foreach($donor AS $d){
-                    foreach($d->kegiatan as $k){
-                        foreach($k->paket as $p){
-                            $real = DB::select(DB::raw('
-                            SELECT 
-                                SUM( "real_dana" ) AS "real"
-                            FROM
-                                "transaction"."paket_dipa_bulan"
-                            WHERE
-                                "ta" LIKE \'%'.$request->keyword.'%\'
-                            AND
-                                "kode_paket" = \''.$p->kode_paket.'\'
-                            '));
-                            $real = $real ? $real[0]->real:0;
-                            $dipa = DB::select(DB::raw('
-                            SELECT 
-                                SUM( "dipa" ) AS "dipa"
-                            FROM
-                                "transaction"."paket_dipa"
-                            WHERE
-                                "tahun" LIKE \'%'.$request->keyword.'%\'
-                            AND
-                                "paket_id" = \''.$p->id.'\'
-                            GROUP BY
-                            "tanggal_revisi"
-                            ORDER BY "tanggal_revisi" DESC LIMIT 1
-                            '));
-                            $dipa = $dipa ? $dipa[0]->dipa:0;
-                            $temp = 
-                                [
-                                    'nama'=>$d->nama,
-                                    'real'=>$real > 0 ? $real / 1000000000:$real,
-                                    'dipa'=>$dipa > 0 ? $dipa / 1000000000:$dipa
-                                ];
-                            array_push($arr,$temp);
-                        }
-                    }
-                }
+                $real = DB::select(DB::raw('
+                SELECT
+                    donor_id,
+                    SUM ( anggaran ) AS dipa,
+                    SUM ( REAL ) AS REAL 
+                FROM
+                    (
+                    SELECT
+                        donor_id,
+                        SUM ( anggaran_dipa ) AS anggaran,
+                        kode_register,
+                        ( SELECT SUM ( real_dana ) FROM "transaction".paket_dipa_bulan WHERE kode_register = x.kode_register ) AS REAL 
+                    FROM
+                        (
+                            SELECT-- 		*
+                            A.donor_id,
+                            b.kegiatan_id,
+                            A.kode_register,
+                            C.nama,
+                            d.ID AS paket_id,
+                            ( SELECT dipa FROM "transaction".paket_dipa n WHERE n.paket_id = d.ID ORDER BY tanggal_revisi DESC LIMIT 1 ) AS anggaran_dipa 
+                        FROM
+                            "transaction".kegiatan
+                            A JOIN ( SELECT kegiatan_id FROM "transaction".paket GROUP BY kegiatan_id ) AS b ON b.kegiatan_id = A.
+                            ID JOIN master.donor C ON A.donor_id = C."id"
+                            JOIN "transaction".paket d ON b.kegiatan_id = d.kegiatan_id 
+                        ) AS x 
+                    GROUP BY
+                        donor_id,
+                        kode_register 
+                    ) AS v 
+                GROUP BY
+                    donor_id
+                '));
             }else{
                 
             }
             $result = json_encode($arr);
-            dd($result);
+            dd($real);
             return view('page.app.dashboard.list_kppd',compact('kegiatan','lkegiatan','tipe','result','persen','sumnilai','results'));
         }
         return view('page.app.dashboard.kppd');
