@@ -55,6 +55,7 @@ Route::group(['domain' => ''], function() {
             Route::get('dashboard-kinerja',[DashboardController::class, 'kinerja'])->name('dashboard.kinerja');
             Route::get('dashboard-evaluasi-kinerja',[DashboardController::class, 'evaluasi_kinerja'])->name('dashboard.evaluasi_kinerja');
             Route::get('dashboard-prognosis',[DashboardController::class, 'prognosis'])->name('dashboard.prognosis');
+            Route::get('dashboard-mapping',[DashboardController::class, 'mapping'])->name('dashboard.mapping');
             Route::get('dashboard-sandingan',[DashboardController::class, 'sandingan'])->name('dashboard.sandingan');
             Route::get('dashboard-jknp',[DashboardController::class, 'jknp'])->name('dashboard.jknp');
             Route::get('dashboard-kpkpln',[DashboardController::class, 'kpkpln'])->name('dashboard.kpkpln');

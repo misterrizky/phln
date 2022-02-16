@@ -78,6 +78,30 @@
                                         <span class="menu-title">Kinerja Penyerapan PHLN</span>
                                     </a>
                                 </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.kinerja')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Kinerja Kegiatan PHLN</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.evaluasi_kinerja')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Evaluasi Kinerja PHLN</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item menu-accordion">
+                                    <a class="menu-link" href="{{route('phln.dashboard.mapping')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Mapping Permasalahan Kegiatan</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div data-kt-menu-trigger="click" class="menu-item menu-accordion">

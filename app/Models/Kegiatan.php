@@ -81,7 +81,7 @@ class Kegiatan extends Model
     }
     public function paket()
     {
-        return $this->hasMany(Paket::class,'kegiatan_id','id');
+        return $this->hasMany(Paket::class);
     }
     // public static function konversi($kondisi,$parameter)
     // {

@@ -8,4 +8,7 @@ class Sektor extends Model
 {
     protected $table = 'master.sektor';
     public $timestamps = false;
+    public function kegiatan(){
+        return $this->hasMany(Kegiatan::class,'sektor_id','id');
+    }
 }

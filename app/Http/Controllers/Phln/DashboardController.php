@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Phln;
 
 use App\Models\Donor;
 use App\Models\Paket;
+use App\Models\Sektor;
 use App\Models\Kegiatan;
 use App\Models\Province;
 use App\Models\PaketDipa;
@@ -210,82 +211,98 @@ class DashboardController extends Controller
     public function kinerja(Request $request)
     {
         if ($request->ajax()) {
-            $q_donor = DB::select(DB::raw('
+            $arr = array();
+            $tipe = $request->tipe;
+            $ea = DB::select(DB::raw('
             SELECT
-                SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN 1 ELSE 0 END) bs,
-                SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN 1 ELSE 0 END) os,
-                SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN 1 ELSE 0 END) ar,
-                "donor"."singkatan" AS "nama"
+                COUNT(DISTINCT("tbl".id)) AS total_kegiatan_ea,
+                SUM(DISTINCT("tbl".nilai_konversi)) AS total_nilai_ea,
+                "tbl"."st"
             FROM
-                "transaction"."kegiatan" "tbl"
-            LEFT JOIN "master"."donor" AS "donor" ON "donor"."id" = "tbl"."donor_id"
+                "transaction"."kegiatan" as "tbl"
+            LEFT JOIN "transaction"."kegiatan_exec" AS "ea" ON "ea"."kegiatan_id" = "tbl"."id"
+            LEFT JOIN "transaction"."kegiatan_imp" AS "ia" ON "ia"."kegiatan_id" = "tbl"."id" 
             WHERE
+                "ea"."unor_code" = \''.'05'.'\'
+                AND
                 "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
             GROUP BY
-                "donor"."singkatan"
+                "tbl"."st"
             '));
-            $arr_d = array();
-
-            foreach($q_donor as $item){
+            $ia = DB::select(DB::raw('
+            SELECT
+                COUNT(DISTINCT("tbl".id)) AS total_kegiatan_ia,
+                SUM(DISTINCT("tbl".nilai_konversi)) AS total_nilai_ia,
+                "tbl"."st"
+            FROM
+                "transaction"."kegiatan" as "tbl"
+            LEFT JOIN "transaction"."kegiatan_exec" AS "ea" ON "ea"."kegiatan_id" = "tbl"."id"
+                        LEFT JOIN "transaction"."kegiatan_imp" AS "ia" ON "ia"."kegiatan_id" = "tbl"."id" 
+            WHERE
+                "ea"."unor_code" != \''.'05'.'\'
+                AND
+                "ia"."unor_code" = \''.'05'.'\'
+                AND
+                "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
+            GROUP BY
+                "tbl"."st"
+            '));
+            if($tipe == "Donor"){
+                $query = DB::select(DB::raw('
+                SELECT
+                    SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN 1 ELSE 0 END) cbs,
+                    SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN 1 ELSE 0 END) cos,
+                    SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN 1 ELSE 0 END) car,
+                    SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN nilai_konversi ELSE 0 END) bs,
+                    SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN nilai_konversi ELSE 0 END) os,
+                    SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN nilai_konversi ELSE 0 END) ar,
+                    "donor"."singkatan" AS "nama"
+                FROM
+                    "transaction"."kegiatan" "tbl"
+                LEFT JOIN "master"."donor" AS "donor" ON "donor"."id" = "tbl"."donor_id"
+                WHERE
+                    "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
+                GROUP BY
+                    "donor"."singkatan"
+                ORDER BY
+                car DESC
+                '));
+            }elseif($tipe== "Sektor"){
+                $query = DB::select(DB::raw('
+                SELECT
+                    SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN 1 ELSE 0 END) cbs,
+                    SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN 1 ELSE 0 END) cos,
+                    SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN 1 ELSE 0 END) car,
+                    SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN nilai_konversi ELSE 0 END) bs,
+                    SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN nilai_konversi ELSE 0 END) os,
+                    SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN nilai_konversi ELSE 0 END) ar,
+                    "sektor"."nama"
+                FROM
+                    "transaction"."kegiatan" "tbl"
+                LEFT JOIN "master"."sektor" AS "sektor" ON "tbl"."sektor_id" = "sektor"."id"
+                WHERE
+                    "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
+                GROUP BY
+                    "sektor"."nama"
+                ORDER BY
+                car DESC
+                '));
+            }
+            foreach($query as $item){
                 $temp=array(
+                    "cbs"=>number_format($item->cbs),
+                    "cos"=>number_format($item->cos),
+                    "car"=>number_format($item->car),
                     "bs"=>number_format($item->bs),
                     "os"=>number_format($item->os),
                     "ar"=>number_format($item->ar),
                     "nama"=>$item->nama
                 );
-                array_push($arr_d,$temp);
+                array_push($arr,$temp);
             }
-            $donor = json_encode($arr_d);
 
-            $q_sektor = DB::select(DB::raw('
-            SELECT
-                SUM(CASE WHEN "tbl"."st" = \'Behind Schedule\' THEN 1 ELSE 0 END) bs,
-                SUM(CASE WHEN "tbl"."st" = \'On Schedule\' THEN 1 ELSE 0 END) os,
-                SUM(CASE WHEN "tbl"."st" =\'At Risk\' THEN 1 ELSE 0 END) ar,
-                "sektor"."nama"
-            FROM
-                "transaction"."kegiatan" "tbl"
-            LEFT JOIN "master"."sektor" AS "sektor" ON "tbl"."sektor_id" = "sektor"."id"
-            WHERE
-                "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
-            GROUP BY
-                "sektor"."nama"
-            '));
-            $arr_s = array();
-            $nmsektor = '';
-            foreach($q_sektor as $item){
-                $nmsektor = $item->nama;
-                $temp=array(
-                    "bs"=>number_format($item->bs),
-                    "os"=>number_format($item->os),
-                    "ar"=>number_format($item->ar),
-                    "nama"=>$nmsektor
-                );
-                array_push($arr_s,$temp);
-            }
-            $sektor = json_encode($arr_s);
-
-            $q_kegiatan = DB::select(DB::raw('
-            SELECT
-                COUNT("tbl"."id") AS "total",
-                "tbl"."st"
-            FROM
-                "transaction"."kegiatan" "tbl"
-            WHERE
-                "tbl"."tipe_kegiatan" LIKE \'%'.$request->kategori.'%\'
-            GROUP BY
-                "tbl"."st"
-            '));
-            $arr_k = array();
-            foreach($q_kegiatan as $item){
-                $temp=array(
-                    "total"=>number_format($item->total),
-                    "st"=>$item->st
-                );
-                array_push($arr_k,$temp);
-            }
-            $kegiatan = json_encode($arr_k);
-            return view('page.app.dashboard.list_kinerja',compact('donor','sektor','kegiatan'));
+            $result = json_encode($arr);
+            return view('page.app.dashboard.list_kinerja',compact('query','result','ia','ea','tipe'));
         }
         return view('page.app.dashboard.kinerja');
     }
@@ -674,5 +691,17 @@ class DashboardController extends Controller
             return view('page.app.dashboard.list_kppd',compact('kegiatan','lkegiatan','tipe','result','persen','sumnilai','results'));
         }
         return view('page.app.dashboard.kppd');
+    }
+    public function mapping(Request $request)
+    {
+        if(Auth::guard('office')->user()->role <= 3){
+            if ($request->ajax()) {
+                $collection = Sektor::where('tipe','Pinjaman')->get();
+                return view('page.app.dashboard.list_mapping',compact('collection'));
+            }
+            return view('page.app.dashboard.mapping');
+        }else{
+            return redirect()->route('phln.kegiatan.index');
+        }
     }
 }
