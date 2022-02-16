@@ -6,6 +6,7 @@ use App\Models\Donor;
 use App\Models\Paket;
 use App\Models\Sektor;
 use App\Models\Kegiatan;
+use App\Models\PaketAwp;
 use App\Models\Province;
 use App\Models\PaketDipa;
 use App\Models\KegiatanDipa;
@@ -696,8 +697,29 @@ class DashboardController extends Controller
     {
         if(Auth::guard('office')->user()->role <= 3){
             if ($request->ajax()) {
+                $kegiatan = Kegiatan::get();
+                $masalah = PaketAwp::where('category_id','!=','0')->orWhere('subcategory_id','!=','0')->get();
                 $collection = Sektor::where('tipe','Pinjaman')->get();
-                return view('page.app.dashboard.list_mapping',compact('collection'));
+                $query = DB::select(DB::raw('
+                SELECT
+                    "c"."nama",
+                    COUNT ( "tbl"."id" ) AS "total" 
+                FROM
+                    "transaction"."paket_awp" "tbl"
+                    JOIN "master"."category" "c" ON "tbl"."category_id" = "c"."id" 
+                GROUP BY
+                    "c"."nama"
+                '));
+                $arr = array();
+                foreach($query as $k){
+                    $temp = array(
+                        'nama'=>$k->nama,
+                        'total'=>number_format($k->total),
+                    );
+                    array_push($arr,$temp);
+                }
+                $results = json_encode($arr);
+                return view('page.app.dashboard.list_mapping',compact('collection','masalah','kegiatan','results'));
             }
             return view('page.app.dashboard.mapping');
         }else{

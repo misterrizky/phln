@@ -27,12 +27,8 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body py-3">
-                <div class="table-responsive">
-                    <div id="list_result"></div>
-                </div>
-            </div>
         </div>
+        <div id="list_result"></div>
     </div>
     @section('custom_js')
         <script>
