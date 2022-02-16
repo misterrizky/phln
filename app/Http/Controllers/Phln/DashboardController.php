@@ -650,15 +650,15 @@ class DashboardController extends Controller
             $sumdipa = $sumdipa ? $sumdipa[0]->dipa : 0;
             $tipe = $request->tipe;
             if($tipe == "Donor"){
-                $real = DB::select(DB::raw('
+                $kegiatan = DB::select(DB::raw('
                 SELECT
-                    donor_id,
+                    nama,
                     SUM ( anggaran ) AS dipa,
-                    SUM ( REAL ) AS REAL 
+                    SUM ( REAL ) AS real 
                 FROM
                     (
                     SELECT
-                        donor_id,
+                        nama,
                         SUM ( anggaran_dipa ) AS anggaran,
                         kode_register,
                         ( SELECT SUM ( real_dana ) FROM "transaction".paket_dipa_bulan WHERE kode_register = x.kode_register ) AS REAL 
@@ -678,18 +678,135 @@ class DashboardController extends Controller
                             JOIN "transaction".paket d ON b.kegiatan_id = d.kegiatan_id 
                         ) AS x 
                     GROUP BY
-                        donor_id,
+                        nama,
                         kode_register 
                     ) AS v 
                 GROUP BY
-                    donor_id
+                    nama
+                order by dipa DESC
+                '));
+                $lkegiatan = DB::select(DB::raw('
+                SELECT
+                    nama,
+                    SUM ( anggaran ) AS dipa,
+                    SUM ( REAL ) AS real 
+                FROM
+                    (
+                    SELECT
+                        nama,
+                        SUM ( anggaran_dipa ) AS anggaran,
+                        kode_register,
+                        ( SELECT SUM ( real_dana ) FROM "transaction".paket_dipa_bulan WHERE kode_register = x.kode_register ) AS REAL 
+                    FROM
+                        (
+                            SELECT-- 		*
+                            A.donor_id,
+                            b.kegiatan_id,
+                            A.kode_register,
+                            C.nama,
+                            d.ID AS paket_id,
+                            ( SELECT dipa FROM "transaction".paket_dipa n WHERE n.paket_id = d.ID ORDER BY tanggal_revisi DESC LIMIT 1 ) AS anggaran_dipa 
+                        FROM
+                            "transaction".kegiatan
+                            A JOIN ( SELECT kegiatan_id FROM "transaction".paket GROUP BY kegiatan_id ) AS b ON b.kegiatan_id = A.
+                            ID JOIN master.donor C ON A.donor_id = C."id"
+                            JOIN "transaction".paket d ON b.kegiatan_id = d.kegiatan_id 
+                        ) AS x 
+                    GROUP BY
+                        nama,
+                        kode_register 
+                    ) AS v 
+                GROUP BY
+                    nama
+                order by dipa ASC
                 '));
             }else{
-                
+                $kegiatan = DB::select(DB::raw('
+                SELECT
+                    nama,
+                    SUM ( anggaran ) AS dipa,
+                    SUM ( REAL ) AS real 
+                FROM
+                    (
+                    SELECT
+                        nama,
+                        SUM ( anggaran_dipa ) AS anggaran,
+                        kode_register,
+                        ( SELECT SUM ( real_dana ) FROM "transaction".paket_dipa_bulan WHERE kode_register = x.kode_register ) AS REAL 
+                    FROM
+                        (
+                            SELECT-- 		*
+                            A.sektor_id,
+                            b.kegiatan_id,
+                            A.kode_register,
+                            C.nama,
+                            d.ID AS paket_id,
+                            ( SELECT dipa FROM "transaction".paket_dipa n WHERE n.paket_id = d.ID ORDER BY tanggal_revisi DESC LIMIT 1 ) AS anggaran_dipa 
+                        FROM
+                            "transaction".kegiatan
+                            A JOIN ( SELECT kegiatan_id FROM "transaction".paket GROUP BY kegiatan_id ) AS b ON b.kegiatan_id = A.
+                            ID JOIN master.sektor C ON A.sektor_id = C."id"
+                            JOIN "transaction".paket d ON b.kegiatan_id = d.kegiatan_id 
+                        ) AS x 
+                    GROUP BY
+                        nama,
+                        kode_register 
+                    ) AS v 
+                GROUP BY
+                    nama
+                order by dipa DESC
+                '));
+                $lkegiatan = DB::select(DB::raw('
+                SELECT
+                    nama,
+                    SUM ( anggaran ) AS dipa,
+                    SUM ( REAL ) AS real 
+                FROM
+                    (
+                    SELECT
+                        nama,
+                        SUM ( anggaran_dipa ) AS anggaran,
+                        kode_register,
+                        ( SELECT SUM ( real_dana ) FROM "transaction".paket_dipa_bulan WHERE kode_register = x.kode_register ) AS REAL 
+                    FROM
+                        (
+                            SELECT-- 		*
+                            A.sektor_id,
+                            b.kegiatan_id,
+                            A.kode_register,
+                            C.nama,
+                            d.ID AS paket_id,
+                            ( SELECT dipa FROM "transaction".paket_dipa n WHERE n.paket_id = d.ID ORDER BY tanggal_revisi DESC LIMIT 1 ) AS anggaran_dipa 
+                        FROM
+                            "transaction".kegiatan
+                            A JOIN ( SELECT kegiatan_id FROM "transaction".paket GROUP BY kegiatan_id ) AS b ON b.kegiatan_id = A.
+                            ID JOIN master.sektor C ON A.sektor_id = C."id"
+                            JOIN "transaction".paket d ON b.kegiatan_id = d.kegiatan_id 
+                        ) AS x 
+                    GROUP BY
+                        nama,
+                        kode_register 
+                    ) AS v 
+                GROUP BY
+                    nama
+                order by dipa ASC
+                '));
             }
+            $total = 0;
+            $totalreal = 0;
+            foreach($kegiatan as $item){
+                $temp=array(
+                    "dipa"=>number_format($item->dipa),
+                    "real"=>number_format($item->real),
+                    "nama"=>$item->nama
+                );
+                $total += $item->dipa;
+                $totalreal += $item->real;
+                array_push($arr,$temp);
+            }
+            $persen = $total/$totalreal*100;
             $result = json_encode($arr);
-            dd($real);
-            return view('page.app.dashboard.list_kppd',compact('kegiatan','lkegiatan','tipe','result','persen','sumnilai','results'));
+            return view('page.app.dashboard.list_kppd',compact('result','tipe','kegiatan','lkegiatan','total','totalreal','persen'));
         }
         return view('page.app.dashboard.kppd');
     }

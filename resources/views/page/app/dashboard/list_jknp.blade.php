@@ -34,7 +34,13 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th rowspan="2">Sektor</th>
+                            <th rowspan="2">
+                                @if ($tipe == "Sektor")
+                                Sektor
+                                @else
+                                Donor
+                                @endif
+                            </th>
                             <th rowspan="2">Jumlah Kegiatan</th>
                             <th colspan="2">Nilai Pinjaman</th>
                         </tr>

@@ -6,31 +6,70 @@
         <div class="card mb-5 mb-xl-10">
             <div class="card-header">
                 <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bolder fs-3 mb-1">{{number_format($persen,2)}} %</span>
+                    <span class="card-label fw-bolder fs-3 mb-1">DIPA PLN = Rp {{number_format($total/1000000000000,2,",",".")}}</span>
+                    <span class="card-label fw-bolder fs-3">{{number_format($persen,2)}}%</span>
                 </h3>
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bolder fs-3 mb-1">Rp {{number_format($sumnilai/1000000000000,2,",",".")}}</span>
+                <h3 class="card-title align-items-center flex-column">
+                    <br>
+                    <span class="card-label fw-bolder fs-5" style="float:right;">Realisasi PLN = Rp {{number_format($totalreal/1000000000000,2,",",".")}}</span>
                 </h3>
                 <div class="card-toolbar">
                     <div class="row">
                         <div class="col-lg-12">
-                            @if($kegiatan)
-                            @if ($tipe == "Sektor")
-                            Dilihat dari sektornya, penyerapan kumulatif yang terbesar pada Sektor {{$kegiatan[0]->nama}} : ({{number_format($kegiatan[0]->real/$sumnilai*100,2,",",".")}} %),
-                            disusul Sektor {{$kegiatan[1]->nama}} : ({{number_format($kegiatan[1]->real/$sumnilai*100,2,",",".")}} %).
-                            Sedangkan penyerapan terkecil pada Sektor {{$lkegiatan[0]->nama}} : ({{number_format($lkegiatan[0]->real/$sumnilai*100,2,",",".")}} %) dari total nilai pinjaman Sektor {{$lkegiatan[0]->nama}}.
-                            @else
-                            Penyerapan Kumulatif yang terbesar pada sumber dana {{$kegiatan[0]->nama}} : ({{number_format($kegiatan[0]->real/$sumnilai*100,2,",",".")}} %),
-                            disusul {{$kegiatan[1]->nama}} : ({{number_format($kegiatan[1]->real/$sumnilai*100,2,",",".")}} %).
-                            Sedangkan penyerapan terkecil pada sumber dana {{$lkegiatan[0]->nama}} : ({{number_format($lkegiatan[0]->real/$sumnilai*100,2,",",".")}} %) dari total nilai pinjaman terhadap {{$lkegiatan[0]->nama}}.
-                            @endif
-                            @endif
+                            {{-- @if($kegiatan) --}}
+                                @if ($tipe == "Sektor")
+                                Dilihat dari sektornya, alokasi Pagu DIPA PLN TA 2021 terbesar pada kegiatan Sektor {{$kegiatan[0]->nama}},
+                                yaitu : Rp. {{$kegiatan[0]->dipa/1000000000000}} Trilyun atau {{$kegiatan[0]->dipa/$total*100}}% dari total Pagu DIPA PLN TA 2021 Ditjen Cipta Karya.
+                                Sedangkan alokasi terkecil pada kegiatan Sektor {{$lkegiatan[0]->nama}}, yaitu : Rp. {{$lkegiatan[0]->dipa/1000000000000}} Triliun atau {{$lkegiatan[0]->dipa/$total*100}}%
+                                dari total Pagu DIPA PLN TA 2021 Ditjen Cipta Karya.
+                                @else
+                                Alokasi Pagu DIPA PLN TA 2021 terbesar pada kegiatan sumber dana {{$kegiatan[0]->nama}},
+                                yaitu : Rp. {{$kegiatan[0]->dipa/1000000000000}} Trilyun atau {{$kegiatan[0]->dipa/$total*100}}% dari total Pagu DIPA PLN TA 2021 Ditjen Cipta Karya.
+                                Sedangkan alokasi terkecil pada kegiatan sumber dana {{$lkegiatan[0]->nama}},
+                                yaitu : Rp. {{$lkegiatan[0]->dipa/1000000000000}} Triliun atau {{$lkegiatan[0]->dipa/$total*100}}% dari total Pagu DIPA PLN TA 2021 Ditjen Cipta Karya.
+                                @endif
+                            {{-- @endif --}}
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <div class="content_grafik_mini" id="pie"></div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">
+                                @if ($tipe == "Sektor" || $tipe == "")
+                                Sektor
+                                @else
+                                Donor
+                                @endif
+                            </th>
+                            <th colspan="1">DIPA</th>
+                            <th colspan="2">Nilai Pinjaman</th>
+                        </tr>
+                        <tr>
+                            <th>Rp. Trilyun</th>
+                            <th>Rp. Trilyun</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($kegiatan as $k)
+                        <tr>
+                            <td>
+                                {{$k->nama}}
+                            </td>
+                            <td>
+                                {{number_format($k->dipa/1000000000000,2,",",".")}}
+                            </td>
+                            <td>
+                                {{number_format($k->real/1000000000000,2,",",".")}}
+                            </td>
+                            <td>{{number_format($k->dipa/$total*100,2,",",".")}} %</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -94,9 +133,9 @@ am4core.ready(function() {
     var series1 = chart.series.push(new am4charts.ColumnSeries());
     series1.columns.template.width = am4core.percent(80);
     series1.columns.template.tooltipText = "{name}: {categoryX} {valueY}";
-    series1.name = "Disburse";
+    series1.name = "Realisasi";
     series1.dataFields.categoryX = "nama";
-    series1.dataFields.valueY = "t";
+    series1.dataFields.valueY = "real";
     series1.dataItems.template.locations.categoryX = 0.5;
     series1.stacked = true;
     series1.tooltip.pointerOrientation = "vertical";
@@ -110,9 +149,9 @@ am4core.ready(function() {
     var series2 = chart.series.push(new am4charts.ColumnSeries());
     series2.columns.template.width = am4core.percent(80);
     series2.columns.template.tooltipText = "{name}: {categoryX} {valueY}";
-    series2.name = "Undisburse";
+    series2.name = "DIPA";
     series2.dataFields.categoryX = "nama";
-    series2.dataFields.valueY = "bt";
+    series2.dataFields.valueY = "dipa";
     series2.dataItems.template.locations.categoryX = 0.5;
     series2.stacked = true;
     series2.tooltip.pointerOrientation = "vertical";
@@ -125,22 +164,4 @@ am4core.ready(function() {
     
     chart.scrollbarX = new am4core.Scrollbar();
 });
-am4core.ready(function() {
-
-    // Themes begin
-    am4core.useTheme(am4themes_animated);
-    // Themes end
-
-    var chart = am4core.create("pie", am4charts.PieChart3D);
-    chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
-    chart.legend = new am4charts.Legend();
-
-    chart.data = {!!$results!!};
-
-    var series = chart.series.push(new am4charts.PieSeries3D());
-    series.dataFields.value = "jumlah";
-    series.dataFields.category = "nama";
-
-}); // end am4core.ready()
 </script>
